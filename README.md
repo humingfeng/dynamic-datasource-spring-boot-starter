@@ -8,16 +8,16 @@
 </p>
 
 <p align="center">
-    <a href="https://www.travis-ci.org/baomidou/dynamic-datasource-spring-boot-starter" target="_blank">
-        <img src="https://www.travis-ci.org/baomidou/dynamic-datasource-spring-boot-starter.svg?branch=master" >
-    <a href="http://mvnrepository.com/artifact/com.baomidou/dynamic-datasource-spring-boot-starter" target="_blank">
-        <img src="https://img.shields.io/maven-central/v/com.baomidou/dynamic-datasource-spring-boot-starter.svg" >
+    <a href="https://www.travis-ci.org/humingfeng/dynamic-datasource-spring-boot-starter" target="_blank">
+        <img src="https://www.travis-ci.org/humingfeng/dynamic-datasource-spring-boot-starter.svg?branch=master" >
+    <a href="http://mvnrepository.com/artifact/com.humingfeng/dynamic-datasource-spring-boot-starter" target="_blank">
+        <img src="https://img.shields.io/maven-central/v/com.humingfeng/dynamic-datasource-spring-boot-starter.svg" >
     </a>
     <a href="http://www.apache.org/licenses/LICENSE-2.0.html" target="_blank">
         <img src="http://img.shields.io/:license-apache-brightgreen.svg" >
     </a>
     <a>
-        <img src="https://img.shields.io/badge/JDK-1.7+-green.svg" >
+        <img src="https://img.shields.io/badge/JDK-1.8+-green.svg" >
     </a>
     <a>
         <img src="https://img.shields.io/badge/springBoot-1.4+_1.5+_2.0+-green.svg" >
@@ -26,7 +26,7 @@
 
 # 简介
 
-dynamic-datasource-spring-boot-starter 是一个基于springboot的快速集成多数据源的启动器。
+dynamic-datasource-spring-boot-starter 是一个基于com.humingfeng二次开发的springboot的快速集成多数据源的启动器。
 
 其支持 **Jdk 1.7+,    SpringBoot 1.4.x  1.5.x   2.0.x**。
 
@@ -59,7 +59,7 @@ dynamic-datasource-spring-boot-starter 是一个基于springboot的快速集成�
 
 ```xml
 <dependency>
-  <groupId>com.baomidou</groupId>
+  <groupId>com.humingfeng</groupId>
   <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
   <version>${version}</version>
 </dependency>
@@ -142,17 +142,3 @@ public class UserServiceImpl implements UserService {
 ```
 
 ---
-
-### 支持一下
-
-![uSA83t.png](https://images.gitee.com/uploads/images/2019/0921/225754_ef8c21e8_709883.png)
-[![uSVpFJ.png](https://images.gitee.com/uploads/images/2019/0921/230525_be693c65_709883.png)](https://imgchr.com/i/uSVpFJ)
-
-#### 赶紧集成体验一下吧！ 如果需要更多功能请点击下面链接查看详细文档！
-
----
-
-
-- #### 加密,Druid集成，MybatisPlus集成，动态增减数据源，自定义切换规则,纯读写分离插件等等更多更细致的文档在这里     [点击查看](https://gitee.com/baomidou/dynamic-datasource-spring-boot-starter/wikis/pages)
-
-- #### 项目Javadoc一览                  [点击查看](https://apidoc.gitee.com/baomidou/dynamic-datasource-spring-boot-starter/)
