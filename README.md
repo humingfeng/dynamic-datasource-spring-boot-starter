@@ -1,7 +1,3 @@
-<p align="center">
-<img src="https://images.gitee.com/uploads/images/2019/0626/231046_f44892b9_709883.png" border="0" />
-
-</p>
 
 <p align="center">
 	<strong>一个基于springboot的快速集成多数据源的启动器</strong>
@@ -26,11 +22,10 @@
 
 # 简介
 
-dynamic-datasource-spring-boot-starter 是一个基于com.humingfeng二次开发的springboot的快速集成多数据源的启动器。
+dynamic-datasource-spring-boot-starter 是一个基于com.baomidou二次开发的springboot的快速集成多数据源的启动器。
 
-其支持 **Jdk 1.7+,    SpringBoot 1.4.x  1.5.x   2.0.x**。
+其支持 **Jdk 1.8+,    SpringBoot 1.4.x  1.5.x   2.0.x**。
 
-**示例项目** 可参考项目下的samples目录。 
 
 # 特性
 
@@ -45,13 +40,6 @@ dynamic-datasource-spring-boot-starter 是一个基于com.humingfeng二次开发
 9. 提供多层数据源嵌套切换。（ServiceA >>>  ServiceB >>> ServiceC，每个Service都是不同的数据源）
 10. 提供 **不使用注解**  而   **使用 正则 或 spel**    来切换数据源方案（实验性功能）。
 
-# 约定
-
-1. 本框架只做 **切换数据源** 这件核心的事情，并**不限制你的具体操作**，切换了数据源可以做任何CRUD。
-2. 配置文件所有以下划线 `_` 分割的数据源 **首部** 即为组的名称，相同组名称的数据源会放在一个组下。
-3. 切换数据源可以是组名，也可以是具体数据源名称。组名则切换时采用负载均衡算法切换。
-4. 默认的数据源名称为  **master** ，你可以通过 `spring.datasource.dynamic.primary` 修改。
-5. 方法上的注解优先于类上注解。
 
 # 使用方法
 
