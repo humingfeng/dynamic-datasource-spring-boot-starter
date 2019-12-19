@@ -22,7 +22,7 @@
 
 # 简介
 
-dynamic-datasource-spring-boot-starter 是一个基于com.baomidou二次开发的springboot的快速集成多数据源的启动器。
+dynamic-datasource-spring-boot-starter 是一个基于com.baomidou根据需求深度二次开发的springboot的快速集成多数据源的启动器。
 
 其支持 **Jdk 1.8+,    SpringBoot 1.4.x  1.5.x   2.0.x**。
 
@@ -47,7 +47,7 @@ dynamic-datasource-spring-boot-starter 是一个基于com.baomidou二次开发�
 
 ```xml
 <dependency>
-  <groupId>com.humingfeng</groupId>
+  <groupId>cn.humingfeng</groupId>
   <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
   <version>${version}</version>
 </dependency>
