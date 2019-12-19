@@ -19,7 +19,7 @@ package com.humingfeng.dynamic.datasource.toolkit;
 /**
  * 动态数据源常量
  *
- * @author jobob
+ * @author humingfeng
  * @since 2019-10-08
  */
 public interface DdConstants {

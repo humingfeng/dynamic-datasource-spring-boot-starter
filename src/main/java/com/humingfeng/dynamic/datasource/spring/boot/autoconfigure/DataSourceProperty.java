@@ -30,7 +30,7 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.util.StringUtils;
 
 /**
- * @author TaoYu
+ * @author humingfeng
  * @since 1.2.0
  */
 @Slf4j

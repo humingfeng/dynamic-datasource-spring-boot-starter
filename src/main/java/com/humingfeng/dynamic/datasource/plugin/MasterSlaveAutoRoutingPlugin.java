@@ -38,7 +38,7 @@ import org.springframework.util.StringUtils;
 /**
  * Master-slave Separation Plugin with mybatis
  *
- * @author TaoYu
+ * @author humingfeng
  * @since 2.5.1
  */
 @Intercepts({

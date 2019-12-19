@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * HikariCp参数配置
  *
- * @author TaoYu
+ * @author humingfeng
  * @since 2.4.1
  */
 @Data

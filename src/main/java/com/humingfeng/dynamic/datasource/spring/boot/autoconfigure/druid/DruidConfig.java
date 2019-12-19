@@ -38,7 +38,7 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 /**
  * Druid参数配置
  *
- * @author TaoYu
+ * @author humingfeng
  * @since 1.2.0
  */
 @Data

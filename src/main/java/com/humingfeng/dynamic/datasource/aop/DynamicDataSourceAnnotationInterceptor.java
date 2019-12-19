@@ -30,7 +30,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 /**
  * Core Interceptor of Dynamic Datasource
  *
- * @author TaoYu
+ * @author humingfeng
  * @since 1.2.0
  */
 public class DynamicDataSourceAnnotationInterceptor implements MethodInterceptor {

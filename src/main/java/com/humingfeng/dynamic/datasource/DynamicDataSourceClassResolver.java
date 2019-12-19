@@ -24,7 +24,7 @@ import org.aopalliance.intercept.MethodInvocation;
 /**
  * 获取对mybatis-plus的支持
  *
- * @author TaoYu
+ * @author humingfeng
  * @since 2.3.0
  */
 @Slf4j

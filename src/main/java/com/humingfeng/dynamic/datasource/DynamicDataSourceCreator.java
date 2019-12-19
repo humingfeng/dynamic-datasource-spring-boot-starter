@@ -47,7 +47,7 @@ import org.springframework.util.StringUtils;
 /**
  * 数据源创建器
  *
- * @author TaoYu
+ * @author humingfeng
  * @since 2.3.0
  */
 @Slf4j
@@ -317,7 +317,7 @@ public class DynamicDataSourceCreator {
    *
    * @param dataSourceProperty 数据源参数
    * @return 数据源
-   * @author 离世庭院 小锅盖
+   * @author humingfeng
    */
   public DataSource createHikariDataSource(DataSourceProperty dataSourceProperty) {
     if (StringUtils.isEmpty(dataSourceProperty.getPublicKey())) {

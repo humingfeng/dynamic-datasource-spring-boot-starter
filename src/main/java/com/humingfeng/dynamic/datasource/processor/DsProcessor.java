@@ -19,7 +19,7 @@ package com.humingfeng.dynamic.datasource.processor;
 import org.aopalliance.intercept.MethodInvocation;
 
 /**
- * @author TaoYu
+ * @author humingfeng
  * @since 2.5.0
  */
 public abstract class DsProcessor {

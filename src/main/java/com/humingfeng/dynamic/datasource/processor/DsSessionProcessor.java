@@ -22,7 +22,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * @author TaoYu
+ * @author humingfeng
  * @since 2.5.0
  */
 public class DsSessionProcessor extends DsProcessor {

@@ -21,7 +21,7 @@ import java.util.Map;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 
 /**
- * @author TaoYu
+ * @author humingfeng
  * @since 2.5.0
  */
 public class DynamicAspectJExpressionPointcut extends AspectJExpressionPointcut {

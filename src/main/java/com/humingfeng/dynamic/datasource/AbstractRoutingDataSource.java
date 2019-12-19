@@ -24,7 +24,7 @@ import org.springframework.jdbc.datasource.AbstractDataSource;
 /**
  * 抽象动态获取数据源
  *
- * @author TaoYu
+ * @author humingfeng
  * @since 2.2.0
  */
 public abstract class AbstractRoutingDataSource extends AbstractDataSource {

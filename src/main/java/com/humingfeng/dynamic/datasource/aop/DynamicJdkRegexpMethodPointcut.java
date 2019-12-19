@@ -20,7 +20,7 @@ import java.util.Map;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
 
 /**
- * @author TaoYu
+ * @author humingfeng
  * @since 2.5.0
  */
 public class DynamicJdkRegexpMethodPointcut extends JdkRegexpMethodPointcut {

@@ -29,7 +29,7 @@ import org.springframework.jdbc.support.JdbcUtils;
 /**
  * JDBC数据源提供者(抽象)
  *
- * @author TaoYu
+ * @author humingfeng
  * @since 2.1.2
  */
 @Slf4j
