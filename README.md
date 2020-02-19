@@ -49,7 +49,7 @@ dynamic-datasource-spring-boot-starter 是一个基于com.baomidou根据需求�
 <dependency>
   <groupId>cn.humingfeng</groupId>
   <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
-  <version>1.2.0</version>
+  <version>1.3.0</version>
 </dependency>
 ```
 2. 配置数据源。

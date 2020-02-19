@@ -1,5 +1,5 @@
 /**
- * Copyright © 2019 organization humingfeng
+ * Copyright © 2020 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ package cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid;
  * Druid 配置属性
  *
  * @author HuMingfeng
- * @date 2020/1/27
  */
 public interface DruidConsts {
 
