@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceAutoConfiguration
+cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceAutoConfiguration
