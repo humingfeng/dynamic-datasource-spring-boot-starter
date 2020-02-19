@@ -18,6 +18,7 @@ package com.humingfeng.dynamic.datasource.provider;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.util.StringUtils;
+import com.gbase.jdbc.jdbc2.optional.GBaseDataSource;
 import com.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
@@ -47,6 +48,10 @@ public class MysqlDynamicDataSourceProvider{
      * HikariCp数据源
      */
     private static final String HIKARI_DATASOURCE = "com.zaxxer.hikari.HikariDataSource";
+    /**
+     * 国产Gbase数据源
+     */
+    private static final String GBASE_DATASOURCE = "com.gbase.jdbc.jdbc2.optional.GBaseDataSource";
 
     /**
      * 数据源表建表语句
@@ -107,6 +112,9 @@ public class MysqlDynamicDataSourceProvider{
                         break;
                     case HIKARI_DATASOURCE:
                         dataSourceProperty.setType(HikariDataSource.class);
+                        break;
+                    case GBASE_DATASOURCE:
+                        dataSourceProperty.setType(GBaseDataSource.class);
                         break;
                     default:
                         break;

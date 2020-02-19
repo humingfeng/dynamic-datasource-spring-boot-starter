@@ -47,9 +47,9 @@ dynamic-datasource-spring-boot-starter 是一个基于com.baomidou二次开发�
 
 ```xml
 <dependency>
-  <groupId>com.humingfeng</groupId>
+  <groupId>cn.humingfeng</groupId>
   <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
-  <version>${version}</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 2. 配置数据源。
@@ -129,4 +129,32 @@ public class UserServiceImpl implements UserService {
 }
 ```
 
+> PS:最新的1.2.0版本支持：
+现在启动时会在从配置文件中初始化数据源后再从默认数据库表中初始化其他数据源，如果数据源表不存在会自动建表，如果存在则从配置表中读取其他数据源配置信息，并进行初始化。
+*MysqlDynamicDataSourceProvider为新增类
+*data_source_config 为数据源配置表，不需要手动建，表不存在会自动创建
+*表中字段为
+USER_NAME varchar(255) '用户名',
+PASSWORD varchar(255) '密码',
+URL varchar(255) '地址',
+DRIVER_CLASS_NAME '驱动',
+DB_NAME '数据源名称',
+TYPE '数据源类型',
+==> TYPE内容支持内容：1、com.alibaba.druid.pool.DruidDataSource
+2、com.alibaba.druid.pool.DruidDataSource
+3、空，则自动创建BasicDataSource
+默认库如果非MySQL或者Oracle，需要改动建表语句自己打包
+欢迎STAR，并关注
+---
+---
+
+关注Github：[1/2极客](https://github.com/humingfeng)
+
+关注博客：[御前提笔小书童](https://blog.csdn.net/qq_22260641)
+
+关注网站：[HuMingfeng](https://royalscholar.cn)
+
+关注公众号：开发者的花花世界
+
+![](https://img-blog.csdnimg.cn/20190106225239166.jpg)
 ---
