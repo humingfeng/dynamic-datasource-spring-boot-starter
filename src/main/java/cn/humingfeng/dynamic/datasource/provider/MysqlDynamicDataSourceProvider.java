@@ -105,7 +105,13 @@ public class MysqlDynamicDataSourceProvider {
                 DataSourceProperty dataSourceProperty = new DataSourceProperty();
                 dataSourceProperty.setUrl(url);
                 dataSourceProperty.setUsername(user_name);
-                dataSourceProperty.setPassword(CryptoUtils.decrypt(password));
+
+                try {
+                    dataSourceProperty.setPassword(CryptoUtils.decrypt(password));
+                }catch (Exception e) {
+                    log.warn(db_name +" password is not encrypt");
+                    dataSourceProperty.setPassword(password);
+                }
                 dataSourceProperty.setDriverClassName(driver_class_name);
                 switch (type) {
                     case DRUID_DATASOURCE:
