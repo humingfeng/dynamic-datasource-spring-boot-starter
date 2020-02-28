@@ -24,7 +24,7 @@
 
 dynamic-datasource-spring-boot-starter 是一个基于com.baomidou根据需求深度二次开发的springboot的快速集成多数据源的启动器。
 
-其支持 **Jdk 1.8+,    SpringBoot 1.4.x  1.5.x   2.0.x**。
+其支持 **Jdk 1.8+,    SpringBoot 1.4.x  1.5.x   2.0.x**  2*。
 
 
 # 特性
@@ -38,7 +38,9 @@ dynamic-datasource-spring-boot-starter 是一个基于com.baomidou根据需求�
 7. 提供Mybatis环境下的  **纯读写分离** 方案。
 8. 使用spel动态参数解析数据源，如从session，header或参数中获取数据源。（多租户架构神器）
 9. 提供多层数据源嵌套切换。（ServiceA >>>  ServiceB >>> ServiceC，每个Service都是不同的数据源）
-10. 提供 **不使用注解**  而   **使用 正则 或 spel**    来切换数据源方案（实验性功能）。
+10. 提供 **不使用注解**  而   **使用 正则 或 spel**    来切换数据源方案（实验性功能）
+11. 支持从数据库配置表初始化数据源，默认Druid加解密 
+12. 支持国产gbase数据库。
 
 
 # 使用方法
@@ -49,7 +51,7 @@ dynamic-datasource-spring-boot-starter 是一个基于com.baomidou根据需求�
 <dependency>
   <groupId>cn.humingfeng</groupId>
   <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
-  <version>1.3.0</version>
+  <version>1.3.2</version>
 </dependency>
 ```
 2. 配置数据源。
