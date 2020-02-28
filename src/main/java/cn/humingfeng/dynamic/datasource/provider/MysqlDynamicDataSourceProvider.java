@@ -16,12 +16,13 @@
  */
 package cn.humingfeng.dynamic.datasource.provider;
 
+import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
 import cn.humingfeng.dynamic.datasource.toolkit.CryptoUtils;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.util.StringUtils;
 import com.gbase.jdbc.jdbc2.optional.GBaseDataSource;
-import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -49,6 +50,11 @@ public class MysqlDynamicDataSourceProvider {
      * HikariCp数据源
      */
     private static final String HIKARI_DATASOURCE = "com.zaxxer.hikari.HikariDataSource";
+
+    /**
+     * BasicDataSource
+     */
+    private static final String BASIC_DATASOURCE = "org.apache.commons.dbcp2.BasicDataSource";
     /**
      * 国产Gbase数据源
      */
@@ -119,6 +125,9 @@ public class MysqlDynamicDataSourceProvider {
                         break;
                     case HIKARI_DATASOURCE:
                         dataSourceProperty.setType(HikariDataSource.class);
+                        break;
+                    case BASIC_DATASOURCE:
+                        dataSourceProperty.setType(BasicDataSource.class);
                         break;
                     case GBASE_DATASOURCE:
                         dataSourceProperty.setType(GBaseDataSource.class);

@@ -16,11 +16,7 @@
  */
 package cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure;
 
-import cn.humingfeng.dynamic.datasource.creator.BasicDataSourceCreator;
-import cn.humingfeng.dynamic.datasource.creator.DataSourceCreator;
-import cn.humingfeng.dynamic.datasource.creator.DruidDataSourceCreator;
-import cn.humingfeng.dynamic.datasource.creator.HikariDataSourceCreator;
-import cn.humingfeng.dynamic.datasource.creator.JndiDataSourceCreator;
+import cn.humingfeng.dynamic.datasource.creator.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -41,6 +37,7 @@ public class DynamicDataSourceCreatorAutoConfiguration {
   public DataSourceCreator dataSourceCreator() {
     DataSourceCreator dataSourceCreator = new DataSourceCreator();
     dataSourceCreator.setBasicDataSourceCreator(basicDataSourceCreator());
+    dataSourceCreator.setGbaseDataSourceCreator(gbaseDataSourceCreator());
     dataSourceCreator.setJndiDataSourceCreator(jndiDataSourceCreator());
     dataSourceCreator.setDruidDataSourceCreator(druidDataSourceCreator());
     dataSourceCreator.setHikariDataSourceCreator(hikariDataSourceCreator());
@@ -52,6 +49,12 @@ public class DynamicDataSourceCreatorAutoConfiguration {
   @ConditionalOnMissingBean
   public BasicDataSourceCreator basicDataSourceCreator() {
     return new BasicDataSourceCreator();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public GbaseDataSourceCreator gbaseDataSourceCreator() {
+      return new GbaseDataSourceCreator();
   }
 
   @Bean

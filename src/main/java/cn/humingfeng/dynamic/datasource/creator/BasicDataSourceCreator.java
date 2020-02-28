@@ -18,12 +18,17 @@ package cn.humingfeng.dynamic.datasource.creator;
 
 import cn.humingfeng.dynamic.datasource.exception.ErrorCreateDataSourceException;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
-
-import java.lang.reflect.Method;
-import javax.sql.DataSource;
-
+import com.alibaba.druid.support.logging.Log;
+import com.alibaba.druid.support.logging.LogFactory;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.sql.DataSource;
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 
 /**
  * 基础数据源创建器
@@ -34,6 +39,8 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @Slf4j
 public class BasicDataSourceCreator {
+
+  private static final Log LOG = LogFactory.getLog(BasicDataSourceCreator.class);
 
   private static Method createMethod;
   private static Method typeMethod;
@@ -86,8 +93,11 @@ public class BasicDataSourceCreator {
       Object o4 = usernameMethod.invoke(o3, dataSourceProperty.getUsername());
       Object o5 = passwordMethod.invoke(o4, dataSourceProperty.getPassword());
       Object o6 = driverClassNameMethod.invoke(o5, dataSourceProperty.getDriverClassName());
-      return (DataSource) buildMethod.invoke(o6);
+      DataSource dataSource = (DataSource) buildMethod.invoke(o6);
+      LOG.info("dynamic-datasource create basic database named " + dataSourceProperty.getPollName() + " succeed");
+      return dataSource;
     } catch (Exception e) {
+        LOG.error("dynamic-datasource create basic database named " + dataSourceProperty.getPollName() + " error");
       throw new ErrorCreateDataSourceException(
           "dynamic-datasource create basic database named " + dataSourceProperty.getPollName() + " error");
     }

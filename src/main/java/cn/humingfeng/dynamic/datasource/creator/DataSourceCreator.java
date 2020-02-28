@@ -17,14 +17,13 @@
 package cn.humingfeng.dynamic.datasource.creator;
 
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
-import cn.humingfeng.dynamic.datasource.support.ScriptRunner;
-
-import javax.sql.DataSource;
-
 import cn.humingfeng.dynamic.datasource.support.DdConstants;
+import cn.humingfeng.dynamic.datasource.support.ScriptRunner;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
+
+import javax.sql.DataSource;
 
 /**
  * 数据源创建器
@@ -59,6 +58,7 @@ public class DataSourceCreator {
   }
 
   private BasicDataSourceCreator basicDataSourceCreator;
+  private GbaseDataSourceCreator gbaseDataSourceCreator;
   private JndiDataSourceCreator jndiDataSourceCreator;
   private HikariDataSourceCreator hikariDataSourceCreator;
   private DruidDataSourceCreator druidDataSourceCreator;
@@ -90,6 +90,8 @@ public class DataSourceCreator {
         dataSource = createDruidDataSource(dataSourceProperty);
       } else if (DdConstants.HIKARI_DATASOURCE.equals(type.getName())) {
         dataSource = createHikariDataSource(dataSourceProperty);
+      } else if (DdConstants.GBASE_DATASOURCE.equals(type.getName())) {
+          dataSource = createGbaseDataSource(dataSourceProperty);
       } else {
         dataSource = createBasicDataSource(dataSourceProperty);
       }
@@ -124,6 +126,19 @@ public class DataSourceCreator {
     }
     return basicDataSourceCreator.createDataSource(dataSourceProperty);
   }
+
+    /**
+     * 国产Gbase数据源
+     *
+     * @param dataSourceProperty 数据源参数
+     * @return 数据源
+     */
+    public DataSource createGbaseDataSource(DataSourceProperty dataSourceProperty) {
+        if (StringUtils.isEmpty(dataSourceProperty.getPublicKey())) {
+            dataSourceProperty.setPublicKey(globalPublicKey);
+        }
+        return gbaseDataSourceCreator.createDataSource(dataSourceProperty);
+    }
 
   /**
    * 创建JNDI数据源

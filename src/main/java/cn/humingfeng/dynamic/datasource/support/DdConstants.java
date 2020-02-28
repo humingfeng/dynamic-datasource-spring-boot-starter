@@ -41,4 +41,8 @@ public interface DdConstants {
    * HikariCp数据源
    */
   String HIKARI_DATASOURCE = "com.zaxxer.hikari.HikariDataSource";
+  /**
+   * 国产Gbase数据源
+   */
+  String GBASE_DATASOURCE = "com.gbase.jdbc.jdbc2.optional.GBaseDataSource";
 }
