@@ -54,7 +54,7 @@ public class DynamicDataSourceCreatorAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean
   public GbaseDataSourceCreator gbaseDataSourceCreator() {
-      return new GbaseDataSourceCreator();
+      return new GbaseDataSourceCreator(properties.getDbcp2());
   }
 
   @Bean

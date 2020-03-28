@@ -18,14 +18,16 @@ package cn.humingfeng.dynamic.datasource.creator;
 
 import cn.humingfeng.dynamic.datasource.exception.ErrorCreateDataSourceException;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
+import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.dbcp.Dbcp2Config;
 import com.alibaba.druid.support.logging.Log;
 import com.alibaba.druid.support.logging.LogFactory;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSourceFactory;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Method;
+import java.util.Properties;
 
 /**
  * 基础Gbase数据源创建器
@@ -39,41 +41,10 @@ public class GbaseDataSourceCreator {
 
     private static final Log LOG = LogFactory.getLog(GbaseDataSourceCreator.class);
 
-    private static Method createMethod;
-    private static Method typeMethod;
-    private static Method urlMethod;
-    private static Method usernameMethod;
-    private static Method passwordMethod;
-    private static Method driverClassNameMethod;
-    private static Method buildMethod;
+    private Dbcp2Config dbcp2Config;
 
-    static {
-        //to support springboot 1.5 and 2.x
-        Class<?> builderClass = null;
-        try {
-            builderClass = Class.forName("org.springframework.boot.jdbc.DataSourceBuilder");
-        } catch (Exception ignored) {
-        }
-        if (builderClass == null) {
-            try {
-                builderClass = Class.forName("org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder");
-            } catch (Exception e) {
-                log.warn("not in springBoot ENV,could not create BasicDataSourceCreator");
-            }
-        }
-        if (builderClass != null) {
-            try {
-                createMethod = builderClass.getDeclaredMethod("create");
-                typeMethod = builderClass.getDeclaredMethod("type", Class.class);
-                urlMethod = builderClass.getDeclaredMethod("url", String.class);
-                usernameMethod = builderClass.getDeclaredMethod("username", String.class);
-                passwordMethod = builderClass.getDeclaredMethod("password", String.class);
-                driverClassNameMethod = builderClass.getDeclaredMethod("driverClassName", String.class);
-                buildMethod = builderClass.getDeclaredMethod("build");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    public GbaseDataSourceCreator(Dbcp2Config dbcp2Config) {
+        this.dbcp2Config = dbcp2Config;
     }
 
     /**
@@ -84,13 +55,56 @@ public class GbaseDataSourceCreator {
      */
     public DataSource createDataSource(DataSourceProperty dataSourceProperty) {
         try {
-            Object o1 = createMethod.invoke(null);
-            Object o2 = typeMethod.invoke(o1, BasicDataSource.class);
-            Object o3 = urlMethod.invoke(o2, dataSourceProperty.getUrl());
-            Object o4 = usernameMethod.invoke(o3, dataSourceProperty.getUsername());
-            Object o5 = passwordMethod.invoke(o4, dataSourceProperty.getPassword());
-            Object o6 = driverClassNameMethod.invoke(o5, dataSourceProperty.getDriverClassName());
-            DataSource dataSource = (DataSource) buildMethod.invoke(o6);
+            Properties properties = new Properties();
+            properties.setProperty("url",dataSourceProperty.getUrl());
+            properties.setProperty("username",dataSourceProperty.getUsername());
+            properties.setProperty("password",dataSourceProperty.getPassword());
+            properties.setProperty("driverClassName",dataSourceProperty.getDriverClassName());
+
+            properties.setProperty("initialSize","5");
+            properties.setProperty("minIdle","5");
+            properties.setProperty("maxIdle","20");
+            properties.setProperty("maxTotal","100");
+            properties.setProperty("maxWaitMillis","100000");
+            properties.setProperty("defaultAutoCommit","true");
+            properties.setProperty("testWhileIdle","true");
+            properties.setProperty("timeBetweenEvictionRunsMillis","600");
+            properties.setProperty("numTestsPerEvictionRun","20");
+            properties.setProperty("minEvictableIdleTimeMillis","600");
+
+            if (dbcp2Config.getInitialSize() != null) {
+                properties.setProperty("initialSize",String.valueOf(dbcp2Config.getInitialSize()));
+            }
+            if (dbcp2Config.getMinIdle() != null) {
+                properties.setProperty("minIdle",String.valueOf(dbcp2Config.getMinIdle()));
+            }
+            if (dbcp2Config.getMaxIdle() != null) {
+                properties.setProperty("maxIdle",String.valueOf(dbcp2Config.getMaxIdle()));
+            }
+            if (dbcp2Config.getMaxTotal() != null) {
+                properties.setProperty("maxTotal",String.valueOf(dbcp2Config.getMaxTotal()));
+            }
+            if (dbcp2Config.getMaxWaitMillis() != null) {
+                properties.setProperty("maxWaitMillis",String.valueOf(dbcp2Config.getMaxWaitMillis()));
+            }
+            if (dbcp2Config.getDefaultAutoCommit() != null && !dbcp2Config.getDefaultAutoCommit()) {
+                properties.setProperty("defaultAutoCommit","false");
+            }
+            if (dbcp2Config.getTestWhileIdle() != null && !dbcp2Config.getTestWhileIdle()) {
+                properties.setProperty("testWhileIdle","false");
+            }
+            if (dbcp2Config.getTimeBetweenEvictionRunsMillis() != null) {
+                properties.setProperty("timeBetweenEvictionRunsMillis",String.valueOf(dbcp2Config.getTimeBetweenEvictionRunsMillis()));
+            }
+            if (dbcp2Config.getNumTestsPerEvictionRun() != null) {
+                properties.setProperty("numTestsPerEvictionRun",String.valueOf(dbcp2Config.getNumTestsPerEvictionRun()));
+            }
+            if (dbcp2Config.getMinEvictableIdleTimeMillis() != null) {
+                properties.setProperty("minEvictableIdleTimeMillis",String.valueOf(dbcp2Config.getMinEvictableIdleTimeMillis()));
+            }
+
+            BasicDataSource dataSource = BasicDataSourceFactory.createDataSource(properties);
+
             LOG.info("dynamic-datasource create gbase database named " + dataSourceProperty.getPollName() + " succeed");
             return dataSource;
         } catch (Exception e) {

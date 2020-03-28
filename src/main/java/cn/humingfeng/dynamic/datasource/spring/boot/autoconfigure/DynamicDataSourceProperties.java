@@ -16,6 +16,7 @@
  */
 package cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure;
 
+import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.dbcp.Dbcp2Config;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid.DruidConfig;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.hikari.HikariCpConfig;
 import cn.humingfeng.dynamic.datasource.strategy.DynamicDataSourceStrategy;
@@ -90,6 +91,12 @@ public class DynamicDataSourceProperties {
    */
   @NestedConfigurationProperty
   private HikariCpConfig hikari = new HikariCpConfig();
+
+  /**
+   * HikariCp全局参数配置
+   */
+  @NestedConfigurationProperty
+  private Dbcp2Config dbcp2 = new Dbcp2Config();
 
   /**
    * 全局默认publicKey
