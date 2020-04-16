@@ -50,6 +50,9 @@ public class Dbcp2Config {
     private Integer maxTotal;
     private Long maxWaitMillis;
     private Boolean defaultAutoCommit;
+    private Long removeAbandonedTimeout;
+    private Boolean removeAbandonedOnBorrow;
+    private Boolean removeAbandonedOnMaintenance;
     private Boolean testWhileIdle;
     private Long timeBetweenEvictionRunsMillis;
     private Integer numTestsPerEvictionRun;

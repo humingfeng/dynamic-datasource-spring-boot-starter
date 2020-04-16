@@ -67,10 +67,13 @@ public class GbaseDataSourceCreator {
             properties.setProperty("maxTotal","100");
             properties.setProperty("maxWaitMillis","100000");
             properties.setProperty("defaultAutoCommit","true");
+            properties.setProperty("removeAbandonedTimeout","600");
+            properties.setProperty("removeAbandonedOnBorrow","true");
+            properties.setProperty("removeAbandonedOnMaintenance","true");
             properties.setProperty("testWhileIdle","true");
-            properties.setProperty("timeBetweenEvictionRunsMillis","600");
-            properties.setProperty("numTestsPerEvictionRun","20");
-            properties.setProperty("minEvictableIdleTimeMillis","600");
+            properties.setProperty("timeBetweenEvictionRunsMillis","60000");
+            properties.setProperty("numTestsPerEvictionRun","5");
+            properties.setProperty("minEvictableIdleTimeMillis","300000");
 
             if (dbcp2Config.getInitialSize() != null) {
                 properties.setProperty("initialSize",String.valueOf(dbcp2Config.getInitialSize()));
@@ -89,6 +92,15 @@ public class GbaseDataSourceCreator {
             }
             if (dbcp2Config.getDefaultAutoCommit() != null && !dbcp2Config.getDefaultAutoCommit()) {
                 properties.setProperty("defaultAutoCommit","false");
+            }
+            if (dbcp2Config.getRemoveAbandonedTimeout() != null) {
+                properties.setProperty("removeAbandonedTimeout",String.valueOf(dbcp2Config.getRemoveAbandonedTimeout()));
+            }
+            if (dbcp2Config.getRemoveAbandonedOnBorrow() != null && !dbcp2Config.getRemoveAbandonedOnBorrow()) {
+                properties.setProperty("removeAbandonedOnBorrow","false");
+            }
+            if (dbcp2Config.getRemoveAbandonedOnMaintenance() != null && !dbcp2Config.getRemoveAbandonedOnMaintenance()) {
+                properties.setProperty("removeAbandonedOnMaintenance","false");
             }
             if (dbcp2Config.getTestWhileIdle() != null && !dbcp2Config.getTestWhileIdle()) {
                 properties.setProperty("testWhileIdle","false");
