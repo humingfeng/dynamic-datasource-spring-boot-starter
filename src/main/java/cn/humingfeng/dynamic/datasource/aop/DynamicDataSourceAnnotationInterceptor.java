@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,11 @@
  */
 package cn.humingfeng.dynamic.datasource.aop;
 
-import cn.humingfeng.dynamic.datasource.toolkit.DynamicDataSourceContextHolder;
-import cn.humingfeng.dynamic.datasource.annotation.DS;
 import cn.humingfeng.dynamic.datasource.processor.DsProcessor;
 import cn.humingfeng.dynamic.datasource.support.DataSourceClassResolver;
-
-import java.lang.reflect.Method;
-
-import lombok.Setter;
+import cn.humingfeng.dynamic.datasource.toolkit.DynamicDataSourceContextHolder;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.core.annotation.AnnotationUtils;
 
 /**
  * Core Interceptor of Dynamic Datasource
@@ -36,29 +30,32 @@ import org.springframework.core.annotation.AnnotationUtils;
  */
 public class DynamicDataSourceAnnotationInterceptor implements MethodInterceptor {
 
-  /**
-   * The identification of SPEL.
-   */
-  private static final String DYNAMIC_PREFIX = "#";
-  private static final DataSourceClassResolver RESOLVER = new DataSourceClassResolver();
-  @Setter
-  private DsProcessor dsProcessor;
+    /**
+     * The identification of SPEL.
+     */
+    private static final String DYNAMIC_PREFIX = "#";
 
-  @Override
-  public Object invoke(MethodInvocation invocation) throws Throwable {
-    try {
-      DynamicDataSourceContextHolder.push(determineDatasource(invocation));
-      return invocation.proceed();
-    } finally {
-      DynamicDataSourceContextHolder.poll();
+    private final DataSourceClassResolver dataSourceClassResolver;
+    private final DsProcessor dsProcessor;
+
+    public DynamicDataSourceAnnotationInterceptor(Boolean allowedPublicOnly, DsProcessor dsProcessor) {
+        dataSourceClassResolver = new DataSourceClassResolver(allowedPublicOnly);
+        this.dsProcessor = dsProcessor;
     }
-  }
 
-  private String determineDatasource(MethodInvocation invocation) throws Throwable {
-    Method method = invocation.getMethod();
-    DS ds = method.isAnnotationPresent(DS.class) ? method.getAnnotation(DS.class)
-        : AnnotationUtils.findAnnotation(RESOLVER.targetClass(invocation), DS.class);
-    String key = ds.value();
-    return (!key.isEmpty() && key.startsWith(DYNAMIC_PREFIX)) ? dsProcessor.determineDatasource(invocation, key) : key;
-  }
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+        String dsKey = determineDatasourceKey(invocation);
+        DynamicDataSourceContextHolder.push(dsKey);
+        try {
+            return invocation.proceed();
+        } finally {
+            DynamicDataSourceContextHolder.poll();
+        }
+    }
+
+    private String determineDatasourceKey(MethodInvocation invocation) {
+        String key = dataSourceClassResolver.findDSKey(invocation.getMethod(), invocation.getThis());
+        return (!key.isEmpty() && key.startsWith(DYNAMIC_PREFIX)) ? dsProcessor.determineDatasource(invocation, key) : key;
+    }
 }

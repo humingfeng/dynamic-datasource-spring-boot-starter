@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,62 +16,122 @@
  */
 package cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure;
 
+import cn.beecp.BeeDataSource;
+import com.alibaba.druid.pool.DruidDataSource;
 import cn.humingfeng.dynamic.datasource.creator.*;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 
+import java.util.List;
+
+/**
+ * @author HuMingfeng
+ */
 @Slf4j
 @Configuration
 @AllArgsConstructor
 @EnableConfigurationProperties(DynamicDataSourceProperties.class)
 public class DynamicDataSourceCreatorAutoConfiguration {
 
-  private final DynamicDataSourceProperties properties;
+    public static final int JNDI_ORDER = 1000;
+    public static final int DRUID_ORDER = 2000;
+    public static final int HIKARI_ORDER = 3000;
+    public static final int BEECP_ORDER = 4000;
+    public static final int DBCP2_ORDER = 5000;
+    public static final int DEFAULT_ORDER = 6000;
 
-  @Bean
-  @ConditionalOnMissingBean
-  public DataSourceCreator dataSourceCreator() {
-    DataSourceCreator dataSourceCreator = new DataSourceCreator();
-    dataSourceCreator.setBasicDataSourceCreator(basicDataSourceCreator());
-    dataSourceCreator.setGbaseDataSourceCreator(gbaseDataSourceCreator());
-    dataSourceCreator.setJndiDataSourceCreator(jndiDataSourceCreator());
-    dataSourceCreator.setDruidDataSourceCreator(druidDataSourceCreator());
-    dataSourceCreator.setHikariDataSourceCreator(hikariDataSourceCreator());
-    dataSourceCreator.setGlobalPublicKey(properties.getPublicKey());
-    return dataSourceCreator;
-  }
+    private final DynamicDataSourceProperties properties;
 
-  @Bean
-  @ConditionalOnMissingBean
-  public BasicDataSourceCreator basicDataSourceCreator() {
-    return new BasicDataSourceCreator();
-  }
+    @Primary
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultDataSourceCreator dataSourceCreator(List<DataSourceCreator> dataSourceCreators) {
+        DefaultDataSourceCreator defaultDataSourceCreator = new DefaultDataSourceCreator();
+        defaultDataSourceCreator.setProperties(properties);
+        defaultDataSourceCreator.setCreators(dataSourceCreators);
+        return defaultDataSourceCreator;
+    }
 
-  @Bean
-  @ConditionalOnMissingBean
-  public GbaseDataSourceCreator gbaseDataSourceCreator() {
-      return new GbaseDataSourceCreator(properties.getDbcp2());
-  }
+    @Bean
+    @Order(DEFAULT_ORDER)
+    @ConditionalOnMissingBean
+    public BasicDataSourceCreator basicDataSourceCreator() {
+        return new BasicDataSourceCreator();
+    }
 
-  @Bean
-  @ConditionalOnMissingBean
-  public JndiDataSourceCreator jndiDataSourceCreator() {
-    return new JndiDataSourceCreator();
-  }
+    @Bean
+    @Order(JNDI_ORDER)
+    @ConditionalOnMissingBean
+    public JndiDataSourceCreator jndiDataSourceCreator() {
+        return new JndiDataSourceCreator();
+    }
 
-  @Bean
-  @ConditionalOnMissingBean
-  public DruidDataSourceCreator druidDataSourceCreator() {
-    return new DruidDataSourceCreator(properties.getDruid());
-  }
+    /**
+     * 存在Druid数据源时, 加入创建器
+     */
+    @ConditionalOnClass(DruidDataSource.class)
+    @Configuration
+    public class DruidDataSourceCreatorConfiguration {
+        @Bean
+        @Order(DRUID_ORDER)
+        @ConditionalOnMissingBean
+        public DruidDataSourceCreator druidDataSourceCreator() {
+            return new DruidDataSourceCreator(properties.getDruid());
+        }
 
-  @Bean
-  @ConditionalOnMissingBean
-  public HikariDataSourceCreator hikariDataSourceCreator() {
-    return new HikariDataSourceCreator(properties.getHikari());
-  }
+    }
+
+    /**
+     * 存在Hikari数据源时, 加入创建器
+     */
+    @ConditionalOnClass(HikariDataSource.class)
+    @Configuration
+    public class HikariDataSourceCreatorConfiguration {
+        @Bean
+        @Order(HIKARI_ORDER)
+        @ConditionalOnMissingBean
+        public HikariDataSourceCreator hikariDataSourceCreator() {
+            return new HikariDataSourceCreator(properties.getHikari());
+        }
+    }
+
+    /**
+     * 存在BeeCp数据源时, 加入创建器
+     */
+    @ConditionalOnClass(BeeDataSource.class)
+    @Configuration
+    public class BeeCpDataSourceCreatorConfiguration {
+
+        @Bean
+        @Order(BEECP_ORDER)
+        @ConditionalOnMissingBean
+        public BeeCpDataSourceCreator beeCpDataSourceCreator() {
+            return new BeeCpDataSourceCreator(properties.getBeecp());
+        }
+    }
+
+    /**
+     * 存在BeeCp数据源时, 加入创建器
+     */
+    @ConditionalOnClass(BasicDataSource.class)
+    @Configuration
+    public class DBCP2DataSourceCreatorConfiguration {
+
+        @Bean
+        @Order(DBCP2_ORDER)
+        @ConditionalOnMissingBean
+        public Dbcp2DataSourceCreator dbcp2DataSourceCreator() {
+            return new Dbcp2DataSourceCreator(properties.getDbcp2());
+        }
+    }
+
 }

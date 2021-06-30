@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import lombok.Data;
 @Data
 public class DruidStatConfig {
 
-  private Long slowSqlMillis;
+    private Long slowSqlMillis;
 
-  private Boolean logSlowSql;
+    private Boolean logSlowSql;
 
-  private Boolean mergeSql;
+    private Boolean mergeSql;
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,23 @@
  */
 package cn.humingfeng.dynamic.datasource.provider;
 
-import java.util.Map;
 import javax.sql.DataSource;
+import java.util.Map;
 
 /**
  * 多数据源加载接口，默认的实现为从yml信息中加载所有数据源 你可以自己实现从其他地方加载所有数据源
  *
- * @author HuMingfeng
+ * @author HuMingfeng 
  * @see YmlDynamicDataSourceProvider
  * @see AbstractJdbcDataSourceProvider
  * @since 1.0.0
  */
 public interface DynamicDataSourceProvider {
 
-  /**
-   * 加载所有数据源
-   *
-   * @return 所有数据源，key为数据源名称
-   */
-  Map<String, DataSource> loadDataSources();
+    /**
+     * 加载所有数据源
+     *
+     * @return 所有数据源，key为数据源名称
+     */
+    Map<String, DataSource> loadDataSources();
 }

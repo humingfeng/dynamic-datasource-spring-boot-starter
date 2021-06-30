@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,10 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnClass(DruidDataSourceAutoConfigure.class)
 @EnableConfigurationProperties({DruidStatProperties.class})
 @Import({
-    DruidSpringAopConfiguration.class,
-    DruidStatViewServletConfiguration.class,
-    DruidWebStatFilterConfiguration.class,
-    DruidFilterConfiguration.class})
+        DruidSpringAopConfiguration.class,
+        DruidStatViewServletConfiguration.class,
+        DruidWebStatFilterConfiguration.class,
+        DruidFilterConfiguration.class})
 public class DruidDynamicDataSourceConfiguration {
 
 }

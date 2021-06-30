@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
  */
 package cn.humingfeng.dynamic.datasource.processor;
 
-import javax.servlet.http.HttpServletRequest;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author HuMingfeng
@@ -27,19 +28,19 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 public class DsHeaderProcessor extends DsProcessor {
 
-  /**
-   * header prefix
-   */
-  private static final String HEADER_PREFIX = "#header";
+    /**
+     * header prefix
+     */
+    private static final String HEADER_PREFIX = "#header";
 
-  @Override
-  public boolean matches(String key) {
-    return key.startsWith(HEADER_PREFIX);
-  }
+    @Override
+    public boolean matches(String key) {
+        return key.startsWith(HEADER_PREFIX);
+    }
 
-  @Override
-  public String doDetermineDatasource(MethodInvocation invocation, String key) {
-    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-    return request.getHeader(key.substring(8));
-  }
+    @Override
+    public String doDetermineDatasource(MethodInvocation invocation, String key) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        return request.getHeader(key.substring(8));
+    }
 }

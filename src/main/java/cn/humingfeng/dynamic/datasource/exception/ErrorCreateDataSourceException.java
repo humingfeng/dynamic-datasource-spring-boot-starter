@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ package cn.humingfeng.dynamic.datasource.exception;
  */
 public class ErrorCreateDataSourceException extends RuntimeException {
 
-  public ErrorCreateDataSourceException(String message) {
-    super(message);
-  }
+    public ErrorCreateDataSourceException(String message) {
+        super(message);
+    }
 
-  public ErrorCreateDataSourceException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public ErrorCreateDataSourceException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

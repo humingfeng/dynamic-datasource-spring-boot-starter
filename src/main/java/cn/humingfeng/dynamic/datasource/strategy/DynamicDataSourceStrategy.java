@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,22 @@
 package cn.humingfeng.dynamic.datasource.strategy;
 
 import java.util.List;
-import javax.sql.DataSource;
 
 /**
  * The interface of dynamic datasource switch strategy
  *
- * @author HuMingfeng
+ * @author HuMingfeng 
  * @see RandomDynamicDataSourceStrategy
  * @see LoadBalanceDynamicDataSourceStrategy
  * @since 1.0.0
  */
 public interface DynamicDataSourceStrategy {
 
-  /**
-   * determine a database from the given dataSources
-   *
-   * @param dataSources given dataSources
-   * @return final dataSource
-   */
-  DataSource determineDataSource(List<DataSource> dataSources);
+    /**
+     * determine a database from the given dataSources
+     *
+     * @param dsNames given dataSources
+     * @return final dataSource
+     */
+    String determineDSKey(List<String> dsNames);
 }

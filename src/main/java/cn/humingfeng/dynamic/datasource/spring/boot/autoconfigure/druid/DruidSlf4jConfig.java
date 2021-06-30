@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import lombok.Data;
 /**
  * Druid日志配置
  *
- * @author Lhx
+ * @author HuMingfeng
  */
 @Data
 public class DruidSlf4jConfig {
 
-  private Boolean enable = true;
+    private Boolean enable = true;
 
-  private Boolean statementExecutableSqlLogEnable = false;
+    private Boolean statementExecutableSqlLogEnable = false;
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,163 +17,32 @@
 package cn.humingfeng.dynamic.datasource.creator;
 
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
-import cn.humingfeng.dynamic.datasource.support.DdConstants;
-import cn.humingfeng.dynamic.datasource.support.ScriptRunner;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 
 /**
- * 数据源创建器
+ * 默认按照以下顺序创建数据源:
+ * <pre>
+ * 	JNDI(1000) &gt; DRUID(2000) &gt; HIKARI(3000) &gt; BASIC(5000)
+ * </pre>
  *
  * @author HuMingfeng
- * @since 2.3.0
  */
-@Slf4j
-@Setter
-public class DataSourceCreator {
-
-  /**
-   * 是否存在druid
-   */
-  private static Boolean druidExists = false;
-  /**
-   * 是否存在hikari
-   */
-  private static Boolean hikariExists = false;
-
-  static {
-    try {
-      Class.forName(DdConstants.DRUID_DATASOURCE);
-      druidExists = true;
-    } catch (ClassNotFoundException ignored) {
-    }
-    try {
-      Class.forName(DdConstants.HIKARI_DATASOURCE);
-      hikariExists = true;
-    } catch (ClassNotFoundException ignored) {
-    }
-  }
-
-  private BasicDataSourceCreator basicDataSourceCreator;
-  private GbaseDataSourceCreator gbaseDataSourceCreator;
-  private JndiDataSourceCreator jndiDataSourceCreator;
-  private HikariDataSourceCreator hikariDataSourceCreator;
-  private DruidDataSourceCreator druidDataSourceCreator;
-  private String globalPublicKey;
-
-  /**
-   * 创建数据源
-   *
-   * @param dataSourceProperty 数据源信息
-   * @return 数据源
-   */
-  public DataSource createDataSource(DataSourceProperty dataSourceProperty) {
-    DataSource dataSource;
-    //如果是jndi数据源
-    String jndiName = dataSourceProperty.getJndiName();
-    if (jndiName != null && !jndiName.isEmpty()) {
-      dataSource = createJNDIDataSource(jndiName);
-    } else {
-      Class<? extends DataSource> type = dataSourceProperty.getType();
-      if (type == null) {
-        if (druidExists) {
-          dataSource = createDruidDataSource(dataSourceProperty);
-        } else if (hikariExists) {
-          dataSource = createHikariDataSource(dataSourceProperty);
-        } else {
-          dataSource = createBasicDataSource(dataSourceProperty);
-        }
-      } else if (DdConstants.DRUID_DATASOURCE.equals(type.getName())) {
-        dataSource = createDruidDataSource(dataSourceProperty);
-      } else if (DdConstants.HIKARI_DATASOURCE.equals(type.getName())) {
-        dataSource = createHikariDataSource(dataSourceProperty);
-      } else if (DdConstants.GBASE_DATASOURCE.equals(type.getName())) {
-          dataSource = createGbaseDataSource(dataSourceProperty);
-      } else {
-        dataSource = createBasicDataSource(dataSourceProperty);
-      }
-    }
-    this.runScrip(dataSourceProperty, dataSource);
-    return dataSource;
-  }
-
-  private void runScrip(DataSourceProperty dataSourceProperty, DataSource dataSource) {
-    String schema = dataSourceProperty.getSchema();
-    String data = dataSourceProperty.getData();
-    if (StringUtils.hasText(schema) || StringUtils.hasText(data)) {
-      ScriptRunner scriptRunner = new ScriptRunner(dataSourceProperty.isContinueOnError(), dataSourceProperty.getSeparator());
-      if (StringUtils.hasText(schema)) {
-        scriptRunner.runScript(dataSource, schema);
-      }
-      if (StringUtils.hasText(data)) {
-        scriptRunner.runScript(dataSource, data);
-      }
-    }
-  }
-
-  /**
-   * 创建基础数据源
-   *
-   * @param dataSourceProperty 数据源参数
-   * @return 数据源
-   */
-  public DataSource createBasicDataSource(DataSourceProperty dataSourceProperty) {
-    if (StringUtils.isEmpty(dataSourceProperty.getPublicKey())) {
-      dataSourceProperty.setPublicKey(globalPublicKey);
-    }
-    return basicDataSourceCreator.createDataSource(dataSourceProperty);
-  }
+public interface DataSourceCreator {
 
     /**
-     * 国产Gbase数据源
+     * 通过属性创建数据源
      *
-     * @param dataSourceProperty 数据源参数
-     * @return 数据源
+     * @param dataSourceProperty 数据源属性
+     * @return 被创建的数据源
      */
-    public DataSource createGbaseDataSource(DataSourceProperty dataSourceProperty) {
-        if (StringUtils.isEmpty(dataSourceProperty.getPublicKey())) {
-            dataSourceProperty.setPublicKey(globalPublicKey);
-        }
-        return gbaseDataSourceCreator.createDataSource(dataSourceProperty);
-    }
+    DataSource createDataSource(DataSourceProperty dataSourceProperty);
 
-  /**
-   * 创建JNDI数据源
-   *
-   * @param jndiName jndi数据源名称
-   * @return 数据源
-   */
-  public DataSource createJNDIDataSource(String jndiName) {
-    return jndiDataSourceCreator.createDataSource(jndiName);
-  }
-
-  /**
-   * 创建Druid数据源
-   *
-   * @param dataSourceProperty 数据源参数
-   * @return 数据源
-   */
-  public DataSource createDruidDataSource(DataSourceProperty dataSourceProperty) {
-    if (StringUtils.isEmpty(dataSourceProperty.getPublicKey())) {
-      dataSourceProperty.setPublicKey(globalPublicKey);
-    }
-    return druidDataSourceCreator.createDataSource(dataSourceProperty);
-  }
-
-  /**
-   * 创建Hikari数据源
-   *
-   * @param dataSourceProperty 数据源参数
-   * @return 数据源
-   * @author HuMingfeng
-   */
-  public DataSource createHikariDataSource(DataSourceProperty dataSourceProperty) {
-    if (StringUtils.isEmpty(dataSourceProperty.getPublicKey())) {
-      dataSourceProperty.setPublicKey(globalPublicKey);
-    }
-    return hikariDataSourceCreator.createDataSource(dataSourceProperty);
-  }
+    /**
+     * 当前创建器是否支持根据此属性创建
+     *
+     * @param dataSourceProperty 数据源属性
+     * @return 是否支持
+     */
+    boolean support(DataSourceProperty dataSourceProperty);
 }

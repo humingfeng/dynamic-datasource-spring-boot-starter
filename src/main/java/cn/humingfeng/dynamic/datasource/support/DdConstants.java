@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,25 +24,29 @@ package cn.humingfeng.dynamic.datasource.support;
  */
 public interface DdConstants {
 
-  /**
-   * 数据源：主库
-   */
-  String MASTER = "master";
-  /**
-   * 数据源：从库
-   */
-  String SLAVE = "slave";
+    /**
+     * 数据源：主库
+     */
+    String MASTER = "master";
+    /**
+     * 数据源：从库
+     */
+    String SLAVE = "slave";
 
-  /**
-   * DRUID数据源类
-   */
-  String DRUID_DATASOURCE = "com.alibaba.druid.pool.DruidDataSource";
-  /**
-   * HikariCp数据源
-   */
-  String HIKARI_DATASOURCE = "com.zaxxer.hikari.HikariDataSource";
-  /**
-   * 国产Gbase数据源
-   */
-  String GBASE_DATASOURCE = "com.gbase.jdbc.jdbc2.optional.GBaseDataSource";
+    /**
+     * DRUID数据源类
+     */
+    String DRUID_DATASOURCE = "com.alibaba.druid.pool.DruidDataSource";
+    /**
+     * HikariCp数据源
+     */
+    String HIKARI_DATASOURCE = "com.zaxxer.hikari.HikariDataSource";
+    /**
+     * BeeCp数据源
+     */
+    String BEECP_DATASOURCE = "cn.beecp.BeeDataSource";
+    /**
+     * DBCP2数据源
+     */
+    String DBCP2_DATASOURCE = "org.apache.commons.dbcp2.BasicDataSource";
 }

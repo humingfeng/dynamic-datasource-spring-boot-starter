@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,27 @@
  */
 package cn.humingfeng.dynamic.datasource.plugin;
 
+import cn.humingfeng.dynamic.datasource.DynamicRoutingDataSource;
+import cn.humingfeng.dynamic.datasource.ds.GroupDataSource;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceProperties;
-import cn.humingfeng.dynamic.datasource.support.DbHealthIndicator;
 import cn.humingfeng.dynamic.datasource.support.DdConstants;
+import cn.humingfeng.dynamic.datasource.support.HealthCheckAdapter;
 import cn.humingfeng.dynamic.datasource.toolkit.DynamicDataSourceContextHolder;
-import java.util.Properties;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
-import org.apache.ibatis.plugin.Interceptor;
-import org.apache.ibatis.plugin.Intercepts;
-import org.apache.ibatis.plugin.Invocation;
-import org.apache.ibatis.plugin.Plugin;
-import org.apache.ibatis.plugin.Signature;
+import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
+import org.springframework.context.annotation.Lazy;
+
+import javax.sql.DataSource;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Master-slave Separation Plugin with mybatis
@@ -43,61 +45,84 @@ import org.springframework.util.StringUtils;
  * @since 2.5.1
  */
 @Intercepts({
-    @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
-    @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class})})
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
+        @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class})})
 @Slf4j
 public class MasterSlaveAutoRoutingPlugin implements Interceptor {
 
-  @Autowired
-  private DynamicDataSourceProperties properties;
+    @Autowired
+    protected DataSource dynamicDataSource;
 
-  @Override
-  public Object intercept(Invocation invocation) throws Throwable {
-    Object[] args = invocation.getArgs();
-    MappedStatement ms = (MappedStatement) args[0];
-    boolean empty = true;
-    try {
-      empty = StringUtils.isEmpty(DynamicDataSourceContextHolder.peek());
-      if (empty) {
-        DynamicDataSourceContextHolder.push(getDataSource(ms));
-      }
-      return invocation.proceed();
-    } finally {
-      if (empty) {
-        DynamicDataSourceContextHolder.clear();
-      }
-    }
-  }
+    @Autowired
+    private DynamicDataSourceProperties properties;
 
-  /**
-   * 获取动态数据源名称，重写注入 DbHealthIndicator 支持数据源健康状况判断选择
-   *
-   * @param mappedStatement mybatis MappedStatement
-   * @return 获取真实的数据源名称
-   */
-  public String getDataSource(MappedStatement mappedStatement) {
-    String slave = DdConstants.SLAVE;
-    if (properties.isHealth()) {
-      /*
-       * 根据从库健康状况，判断是否切到主库
-       */
-      boolean health = DbHealthIndicator.getDbHealth(DdConstants.SLAVE);
-      if (!health) {
-        health = DbHealthIndicator.getDbHealth(DdConstants.MASTER);
-        if (health) {
-          slave = DdConstants.MASTER;
+    @Lazy
+    @Autowired(required = false)
+    private HealthCheckAdapter healthCheckAdapter;
+
+    @Override
+    public Object intercept(Invocation invocation) throws Throwable {
+        Object[] args = invocation.getArgs();
+        MappedStatement ms = (MappedStatement) args[0];
+        String pushedDataSource = null;
+        try {
+            String dataSource = getDataSource(ms);
+            pushedDataSource = DynamicDataSourceContextHolder.push(dataSource);
+            return invocation.proceed();
+        } finally {
+            if (pushedDataSource != null) {
+                DynamicDataSourceContextHolder.poll();
+            }
         }
-      }
     }
-    return SqlCommandType.SELECT == mappedStatement.getSqlCommandType() ? slave : DdConstants.MASTER;
-  }
 
-  @Override
-  public Object plugin(Object target) {
-    return target instanceof Executor ? Plugin.wrap(target, this) : target;
-  }
+    /**
+     * 获取动态数据源名称，重写注入 DbHealthIndicator 支持数据源健康状况判断选择
+     *
+     * @param mappedStatement mybatis MappedStatement
+     * @return 获取真实的数据源名称
+     */
+    public String getDataSource(MappedStatement mappedStatement) {
+        String currentDataSource = SqlCommandType.SELECT == mappedStatement.getSqlCommandType() ? DdConstants.SLAVE : DdConstants.MASTER;
+        String dataSource = null;
+        if (properties.isHealth()) {
+            DynamicRoutingDataSource dynamicRoutingDataSource = (DynamicRoutingDataSource) dynamicDataSource;
+            // 当前数据源是从库
+            if (DdConstants.SLAVE.equalsIgnoreCase(currentDataSource)) {
+                Map<String, GroupDataSource> currentGroupDataSources = dynamicRoutingDataSource.getCurrentGroupDataSources();
+                GroupDataSource groupDataSource = currentGroupDataSources.get(DdConstants.SLAVE);
+                String dsKey = groupDataSource.determineDsKey();
+                boolean health = healthCheckAdapter.getHealth(dsKey);
+                if (health) {
+                    dataSource = dsKey;
+                } else {
+                    log.warn("从库无法连接, 请检查数据库配置, key: {}", dsKey);
+                }
+            }
+            // 从库无法连接, 或者当前数据源需要操作主库
+            if (dataSource == null) {
+                // 当前数据源是主库
+                Map<String, GroupDataSource> currentGroupDataSources = dynamicRoutingDataSource.getCurrentGroupDataSources();
+                GroupDataSource groupDataSource = currentGroupDataSources.get(DdConstants.MASTER);
+                dataSource = groupDataSource.determineDsKey();
+                boolean health = healthCheckAdapter.getHealth(dataSource);
+                if (!health) {
+                    log.warn("主库无法连接, 请检查数据库配置, key: {}", dataSource);
+                }
+            }
+        } else {
+            dataSource = currentDataSource;
+        }
+        return dataSource;
+    }
 
-  @Override
-  public void setProperties(Properties properties) {
-  }
+    @Override
+    public Object plugin(Object target) {
+        return Plugin.wrap(target, this);
+    }
+
+    @Override
+    public void setProperties(Properties properties) {
+    }
 }

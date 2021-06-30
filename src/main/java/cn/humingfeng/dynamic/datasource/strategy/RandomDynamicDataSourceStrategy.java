@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,17 @@ package cn.humingfeng.dynamic.datasource.strategy;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import javax.sql.DataSource;
 
 /**
  * Random strategy to switch a database
  *
- * @author HuMingfeng
+ * @author HuMingfeng 
  * @since 1.0.0
  */
 public class RandomDynamicDataSourceStrategy implements DynamicDataSourceStrategy {
 
-  @Override
-  public DataSource determineDataSource(List<DataSource> dataSources) {
-    return dataSources.get(ThreadLocalRandom.current().nextInt(dataSources.size()));
-  }
+    @Override
+    public String determineDSKey(List<String> dsNames) {
+        return dsNames.get(ThreadLocalRandom.current().nextInt(dsNames.size()));
+    }
 }

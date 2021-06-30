@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,13 @@
  * limitations under the License.
  * <pre/>
  */
-package cn.humingfeng.dynamic.datasource.matcher;
+package cn.humingfeng.dynamic.datasource.annotation;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import java.lang.annotation.*;
 
-/**
- * @author HuMingfeng
- * @since 2.5.0
- */
-@AllArgsConstructor
-@Data
-public class ExpressionMatcher implements Matcher {
-
-  private String expression;
-
-  private String ds;
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@DS("master")
+public @interface Master {
 }

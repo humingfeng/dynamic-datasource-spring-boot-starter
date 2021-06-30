@@ -1,5 +1,5 @@
 /**
- * Copyright © 2020 organization humingfeng
+ * Copyright © 2019 organization humingfeng
  * <pre>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
  */
 package cn.humingfeng.dynamic.datasource.creator;
 
-import javax.sql.DataSource;
+import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
+
+import javax.sql.DataSource;
 
 /**
  * JNDI数据源创建器
@@ -25,18 +27,28 @@ import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
  * @author HuMingfeng
  * @since 2020/1/27
  */
-public class JndiDataSourceCreator {
+public class JndiDataSourceCreator implements DataSourceCreator {
 
-  private static final JndiDataSourceLookup LOOKUP = new JndiDataSourceLookup();
+    private static final JndiDataSourceLookup LOOKUP = new JndiDataSourceLookup();
 
-  /**
-   * 创建基础数据源
-   *
-   * @param name 数据源参数
-   * @return 数据源
-   */
-  public DataSource createDataSource(String name) {
-    return LOOKUP.getDataSource(name);
-  }
+    public DataSource createDataSource(String jndiName) {
+        return LOOKUP.getDataSource(jndiName);
+    }
 
+    /**
+     * 创建JNDI数据源
+     *
+     * @param dataSourceProperty jndi数据源名称
+     * @return 数据源
+     */
+    @Override
+    public DataSource createDataSource(DataSourceProperty dataSourceProperty) {
+        return LOOKUP.getDataSource(dataSourceProperty.getJndiName());
+    }
+
+    @Override
+    public boolean support(DataSourceProperty dataSourceProperty) {
+        String jndiName = dataSourceProperty.getJndiName();
+        return jndiName != null && !jndiName.isEmpty();
+    }
 }
