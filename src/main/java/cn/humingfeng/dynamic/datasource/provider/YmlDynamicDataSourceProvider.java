@@ -17,8 +17,10 @@
 package cn.humingfeng.dynamic.datasource.provider;
 
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
+import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceProperties;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -26,7 +28,7 @@ import java.util.Map;
 /**
  * YML数据源提供者
  *
- * @author HuMingfeng 
+ * @author HuMingfeng
  * @since 1.0.0
  */
 @Slf4j
@@ -38,8 +40,36 @@ public class YmlDynamicDataSourceProvider extends AbstractDataSourceProvider {
      */
     private final Map<String, DataSourceProperty> dataSourcePropertiesMap;
 
+    /**
+     * 多数据源参数
+     */
+    @Autowired
+    private DynamicDataSourceProperties properties;
+
+    /**
+     * 数据库配置表初始化数据源
+     */
+    private MysqlDynamicDataSourceProvider mysqlDynamicDataSourceProvider = new MysqlDynamicDataSourceProvider();
+
+    public YmlDynamicDataSourceProvider(Map<String, DataSourceProperty> dataSourcePropertiesMap) {
+        this.dataSourcePropertiesMap = dataSourcePropertiesMap;
+    }
+
     @Override
     public Map<String, DataSource> loadDataSources() {
-        return createDataSourceMap(dataSourcePropertiesMap);
+        Map<String, DataSource> dataSourceMap = createDataSourceMap(dataSourcePropertiesMap);
+
+        /**
+         *    在此处获取其他数据库配置的数据源
+         */
+        Map<String, DataSourceProperty> otherMap = mysqlDynamicDataSourceProvider.run(dataSourceMap.get(properties.getPrimary()));
+
+        if (!otherMap.isEmpty()) {
+
+            Map<String, DataSource> otherDataSourceMap = createDataSourceMap(otherMap);
+            dataSourceMap.putAll(otherDataSourceMap);
+
+        }
+        return dataSourceMap;
     }
 }

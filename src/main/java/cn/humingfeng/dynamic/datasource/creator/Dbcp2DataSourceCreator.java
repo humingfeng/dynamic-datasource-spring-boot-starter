@@ -21,6 +21,7 @@ import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.dbcp2.Dbcp2Con
 import cn.humingfeng.dynamic.datasource.toolkit.ConfigMergeCreator;
 import lombok.Data;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.util.StringUtils;
 
@@ -35,6 +36,7 @@ import static cn.humingfeng.dynamic.datasource.support.DdConstants.DBCP2_DATASOU
  * @since 2021/5/18
  */
 @Data
+@Slf4j
 public class Dbcp2DataSourceCreator implements DataSourceCreator {
 
     private static final ConfigMergeCreator<Dbcp2Config, BasicDataSource> MERGE_CREATOR = new ConfigMergeCreator<>("Dbcp2", Dbcp2Config.class, BasicDataSource.class);
@@ -68,6 +70,7 @@ public class Dbcp2DataSourceCreator implements DataSourceCreator {
         if (Boolean.FALSE.equals(dataSourceProperty.getLazy())) {
             dataSource.start();
         }
+        log.info("dynamic-datasource create dbcp2 database named " + dataSourceProperty.getPoolName() + " succeed");
         return dataSource;
     }
 

@@ -28,6 +28,7 @@ import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid.DruidCon
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid.DruidSlf4jConfig;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid.DruidWallConfigUtil;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
@@ -47,6 +48,7 @@ import static cn.humingfeng.dynamic.datasource.support.DdConstants.DRUID_DATASOU
  * @since 2020/1/21
  */
 @Data
+@Slf4j
 public class DruidDataSourceCreator implements DataSourceCreator {
 
     private static Boolean druidExists = false;
@@ -94,7 +96,9 @@ public class DruidDataSourceCreator implements DataSourceCreator {
         if (Boolean.FALSE.equals(dataSourceProperty.getLazy())) {
             try {
                 dataSource.init();
+                log.info("dynamic-datasource create druid database named " + dataSourceProperty.getPoolName() + " succeed");
             } catch (SQLException e) {
+                log.info("dynamic-datasource create druid database named " + dataSourceProperty.getPoolName() + " error");
                 throw new ErrorCreateDataSourceException("druid create error", e);
             }
         }

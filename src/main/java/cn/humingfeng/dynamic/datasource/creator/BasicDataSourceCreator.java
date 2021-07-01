@@ -86,8 +86,11 @@ public class BasicDataSourceCreator implements DataSourceCreator {
             Object o4 = usernameMethod.invoke(o3, dataSourceProperty.getUsername());
             Object o5 = passwordMethod.invoke(o4, dataSourceProperty.getPassword());
             Object o6 = driverClassNameMethod.invoke(o5, dataSourceProperty.getDriverClassName());
-            return (DataSource) buildMethod.invoke(o6);
+            DataSource dataSource = (DataSource) buildMethod.invoke(o6);
+            log.info("dynamic-datasource create basic database named " + dataSourceProperty.getPoolName() + " succeed");
+            return dataSource;
         } catch (Exception e) {
+            log.error("dynamic-datasource create basic database named " + dataSourceProperty.getPoolName() + " error");
             throw new ErrorCreateDataSourceException(
                     "dynamic-datasource create basic database named " + dataSourceProperty.getPoolName() + " error");
         }
