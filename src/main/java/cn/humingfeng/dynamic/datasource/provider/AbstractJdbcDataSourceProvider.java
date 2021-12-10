@@ -35,7 +35,7 @@ import java.util.Map;
  * @since 2.1.2
  */
 @Slf4j
-public abstract class AbstractJdbcDataSourceProvider extends AbstractDataSourceProvider implements DynamicDataSourceProvider {
+public abstract class AbstractJdbcDataSourceProvider extends AbstractDataSourceProvider implements cn.humingfeng.dynamic.datasource.provider.DynamicDataSourceProvider {
 
     /**
      * JDBC driver
@@ -58,7 +58,6 @@ public abstract class AbstractJdbcDataSourceProvider extends AbstractDataSourceP
     public AbstractJdbcDataSourceProvider(String url, String username, String password) {
         this(null, url, username, password);
     }
-
 
     public AbstractJdbcDataSourceProvider(String driverClassName, String url, String username, String password) {
         this.driverClassName = driverClassName;

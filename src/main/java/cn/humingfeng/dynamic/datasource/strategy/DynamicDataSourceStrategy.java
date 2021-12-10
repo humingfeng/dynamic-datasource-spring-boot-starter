@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * The interface of dynamic datasource switch strategy
  *
- * @author HuMingfeng 
+ * @author HuMingfeng
  * @see RandomDynamicDataSourceStrategy
  * @see LoadBalanceDynamicDataSourceStrategy
  * @since 1.0.0
@@ -34,5 +34,5 @@ public interface DynamicDataSourceStrategy {
      * @param dsNames given dataSources
      * @return final dataSource
      */
-    String determineDSKey(List<String> dsNames);
+    String determineKey(List<String> dsNames);
 }

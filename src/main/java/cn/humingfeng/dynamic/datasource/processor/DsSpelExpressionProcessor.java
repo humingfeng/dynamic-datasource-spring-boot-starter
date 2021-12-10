@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
  * @author HuMingfeng
  * @since 2.5.0
  */
-public class DsSpelExpressionProcessor extends DsProcessor {
+public class DsSpelExpressionProcessor extends cn.humingfeng.dynamic.datasource.processor.DsProcessor {
 
     /**
      * 参数发现器

@@ -22,13 +22,13 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Random strategy to switch a database
  *
- * @author HuMingfeng 
+ * @author HuMingfeng
  * @since 1.0.0
  */
-public class RandomDynamicDataSourceStrategy implements DynamicDataSourceStrategy {
+public class RandomDynamicDataSourceStrategy implements cn.humingfeng.dynamic.datasource.strategy.DynamicDataSourceStrategy {
 
     @Override
-    public String determineDSKey(List<String> dsNames) {
+    public String determineKey(List<String> dsNames) {
         return dsNames.get(ThreadLocalRandom.current().nextInt(dsNames.size()));
     }
 }

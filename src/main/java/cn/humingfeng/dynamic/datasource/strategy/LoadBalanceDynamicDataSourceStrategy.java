@@ -22,10 +22,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * LoadBalance strategy to switch a database
  *
- * @author HuMingfeng 
+ * @author HuMingfeng
  * @since 1.0.0
  */
-public class LoadBalanceDynamicDataSourceStrategy implements DynamicDataSourceStrategy {
+public class LoadBalanceDynamicDataSourceStrategy implements cn.humingfeng.dynamic.datasource.strategy.DynamicDataSourceStrategy {
 
     /**
      * 负载均衡计数器
@@ -33,7 +33,7 @@ public class LoadBalanceDynamicDataSourceStrategy implements DynamicDataSourceSt
     private final AtomicInteger index = new AtomicInteger(0);
 
     @Override
-    public String determineDSKey(List<String> dsNames) {
+    public String determineKey(List<String> dsNames) {
         return dsNames.get(Math.abs(index.getAndAdd(1) % dsNames.size()));
     }
 }

@@ -45,6 +45,8 @@ import java.security.spec.X509EncodedKeySpec;
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * @author HuMingfeng
  */
 public class CryptoUtils {
 
@@ -90,7 +92,7 @@ public class CryptoUtils {
         }
 
         try {
-            byte[] publicKeyBytes = Base64.base64ToByteArray(publicKeyText);
+            byte[] publicKeyBytes = cn.humingfeng.dynamic.datasource.toolkit.Base64.base64ToByteArray(publicKeyText);
             X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(
                     publicKeyBytes);
 
@@ -153,7 +155,7 @@ public class CryptoUtils {
             return cipherText;
         }
 
-        byte[] cipherBytes = Base64.base64ToByteArray(cipherText);
+        byte[] cipherBytes = cn.humingfeng.dynamic.datasource.toolkit.Base64.base64ToByteArray(cipherText);
         byte[] plainBytes = cipher.doFinal(cipherBytes);
 
         return new String(plainBytes);
@@ -168,7 +170,7 @@ public class CryptoUtils {
             key = DEFAULT_PRIVATE_KEY_STRING;
         }
 
-        byte[] keyBytes = Base64.base64ToByteArray(key);
+        byte[] keyBytes = cn.humingfeng.dynamic.datasource.toolkit.Base64.base64ToByteArray(key);
         return encrypt(keyBytes, plainText);
     }
 
@@ -188,7 +190,7 @@ public class CryptoUtils {
             cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, fakePublicKey);
         }
-        return Base64.byteArrayToBase64(cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8)));
+        return cn.humingfeng.dynamic.datasource.toolkit.Base64.byteArrayToBase64(cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8)));
     }
 
     public static byte[][] genKeyPairBytes(int keySize) {
@@ -210,8 +212,8 @@ public class CryptoUtils {
     public static String[] genKeyPair(int keySize) {
         byte[][] keyPairBytes = genKeyPairBytes(keySize);
         String[] keyPairs = new String[2];
-        keyPairs[0] = Base64.byteArrayToBase64(keyPairBytes[0]);
-        keyPairs[1] = Base64.byteArrayToBase64(keyPairBytes[1]);
+        keyPairs[0] = cn.humingfeng.dynamic.datasource.toolkit.Base64.byteArrayToBase64(keyPairBytes[0]);
+        keyPairs[1] = cn.humingfeng.dynamic.datasource.toolkit.Base64.byteArrayToBase64(keyPairBytes[1]);
         return keyPairs;
     }
 }

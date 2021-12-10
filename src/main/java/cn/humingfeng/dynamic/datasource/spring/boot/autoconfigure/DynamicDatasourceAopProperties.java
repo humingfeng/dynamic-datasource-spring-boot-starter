@@ -14,19 +14,29 @@
  * limitations under the License.
  * <pre/>
  */
-package cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid;
+package cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure;
 
 import lombok.Data;
+import org.springframework.core.Ordered;
 
 /**
- * Druid日志配置
+ * 多数据源aop相关配置
  *
  * @author HuMingfeng
  */
 @Data
-public class DruidSlf4jConfig {
+public class DynamicDatasourceAopProperties {
 
-    private Boolean enable = true;
-
-    private Boolean statementExecutableSqlLogEnable = false;
+    /**
+     * enabled default DS annotation default true
+     */
+    private Boolean enabled = true;
+    /**
+     * aop order
+     */
+    private Integer order = Ordered.HIGHEST_PRECEDENCE;
+    /**
+     * aop allowedPublicOnly
+     */
+    private Boolean allowedPublicOnly = true;
 }

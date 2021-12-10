@@ -17,9 +17,13 @@
 package cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure;
 
 import cn.humingfeng.dynamic.datasource.DynamicRoutingDataSource;
+import cn.humingfeng.dynamic.datasource.annotation.DS;
+import cn.humingfeng.dynamic.datasource.annotation.DSTransactional;
 import cn.humingfeng.dynamic.datasource.aop.DynamicDataSourceAnnotationAdvisor;
 import cn.humingfeng.dynamic.datasource.aop.DynamicDataSourceAnnotationInterceptor;
-import cn.humingfeng.dynamic.datasource.aop.DynamicLocalTransactionAdvisor;
+import cn.humingfeng.dynamic.datasource.aop.DynamicLocalTransactionInterceptor;
+import cn.humingfeng.dynamic.datasource.event.DataSourceInitEvent;
+import cn.humingfeng.dynamic.datasource.event.EncDataSourceInitEvent;
 import cn.humingfeng.dynamic.datasource.processor.DsHeaderProcessor;
 import cn.humingfeng.dynamic.datasource.processor.DsProcessor;
 import cn.humingfeng.dynamic.datasource.processor.DsSessionProcessor;
@@ -30,8 +34,6 @@ import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid.DruidDyn
 import cn.humingfeng.dynamic.datasource.strategy.DynamicDataSourceStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.Advisor;
-import org.springframework.aop.aspectj.AspectJExpressionPointcut;
-import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
@@ -54,7 +56,7 @@ import java.util.List;
 /**
  * 动态数据源核心自动配置类
  *
- * @author HuMingfeng 
+ * @author HuMingfeng
  * @see DynamicDataSourceProvider
  * @see DynamicDataSourceStrategy
  * @see DynamicRoutingDataSource
@@ -62,19 +64,19 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-@EnableConfigurationProperties(DynamicDataSourceProperties.class)
+@EnableConfigurationProperties(cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceProperties.class)
 @AutoConfigureBefore(value = DataSourceAutoConfiguration.class, name = "com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure")
-@Import(value = {DruidDynamicDataSourceConfiguration.class, DynamicDataSourceCreatorAutoConfiguration.class, DynamicDataSourceHealthCheckConfiguration.class})
-@ConditionalOnProperty(prefix = DynamicDataSourceProperties.PREFIX, name = "enabled", havingValue = "true", matchIfMissing = true)
+@Import(value = {DruidDynamicDataSourceConfiguration.class, cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceCreatorAutoConfiguration.class})
+@ConditionalOnProperty(prefix = cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceProperties.PREFIX, name = "enabled", havingValue = "true", matchIfMissing = true)
 public class DynamicDataSourceAutoConfiguration implements InitializingBean {
 
-    private final DynamicDataSourceProperties properties;
+    private final cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceProperties properties;
 
-    private final List<DynamicDataSourcePropertiesCustomizer> dataSourcePropertiesCustomizers;
+    private final List<cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourcePropertiesCustomizer> dataSourcePropertiesCustomizers;
 
     public DynamicDataSourceAutoConfiguration(
-            DynamicDataSourceProperties properties,
-            ObjectProvider<List<DynamicDataSourcePropertiesCustomizer>> dataSourcePropertiesCustomizers) {
+            cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceProperties properties,
+            ObjectProvider<List<cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourcePropertiesCustomizer>> dataSourcePropertiesCustomizers) {
         this.properties = properties;
         this.dataSourcePropertiesCustomizers = dataSourcePropertiesCustomizers.getIfAvailable();
     }
@@ -96,22 +98,29 @@ public class DynamicDataSourceAutoConfiguration implements InitializingBean {
         return dataSource;
     }
 
-    @Role(value = BeanDefinition.ROLE_INFRASTRUCTURE)
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     @Bean
+    @ConditionalOnProperty(prefix = cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceProperties.PREFIX + ".aop", name = "enabled", havingValue = "true", matchIfMissing = true)
     public Advisor dynamicDatasourceAnnotationAdvisor(DsProcessor dsProcessor) {
-        DynamicDataSourceAnnotationInterceptor interceptor = new DynamicDataSourceAnnotationInterceptor(properties.isAllowedPublicOnly(), dsProcessor);
-        DynamicDataSourceAnnotationAdvisor advisor = new DynamicDataSourceAnnotationAdvisor(interceptor);
-        advisor.setOrder(properties.getOrder());
+        cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDatasourceAopProperties aopProperties = properties.getAop();
+        DynamicDataSourceAnnotationInterceptor interceptor = new DynamicDataSourceAnnotationInterceptor(aopProperties.getAllowedPublicOnly(), dsProcessor);
+        DynamicDataSourceAnnotationAdvisor advisor = new DynamicDataSourceAnnotationAdvisor(interceptor, DS.class);
+        advisor.setOrder(aopProperties.getOrder());
         return advisor;
     }
 
-    @Role(value = BeanDefinition.ROLE_INFRASTRUCTURE)
-    @ConditionalOnProperty(prefix = DynamicDataSourceProperties.PREFIX, name = "seata", havingValue = "false", matchIfMissing = true)
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     @Bean
+    @ConditionalOnProperty(prefix = cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceProperties.PREFIX, name = "seata", havingValue = "false", matchIfMissing = true)
     public Advisor dynamicTransactionAdvisor() {
-        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
-        pointcut.setExpression("@annotation(cn.humingfeng.dynamic.datasource.annotation.DSTransactional)");
-        return new DefaultPointcutAdvisor(pointcut, new DynamicLocalTransactionAdvisor());
+        DynamicLocalTransactionInterceptor interceptor = new DynamicLocalTransactionInterceptor();
+        return new DynamicDataSourceAnnotationAdvisor(interceptor, DSTransactional.class);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DataSourceInitEvent dataSourceInitEvent() {
+        return new EncDataSourceInitEvent();
     }
 
     @Bean
@@ -129,7 +138,7 @@ public class DynamicDataSourceAutoConfiguration implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         if (!CollectionUtils.isEmpty(dataSourcePropertiesCustomizers)) {
-            for (DynamicDataSourcePropertiesCustomizer customizer : dataSourcePropertiesCustomizers) {
+            for (cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourcePropertiesCustomizer customizer : dataSourcePropertiesCustomizers) {
                 customizer.customize(properties);
             }
         }

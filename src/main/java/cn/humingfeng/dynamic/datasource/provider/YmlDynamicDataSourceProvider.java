@@ -33,7 +33,7 @@ import java.util.Map;
  */
 @Slf4j
 @AllArgsConstructor
-public class YmlDynamicDataSourceProvider extends AbstractDataSourceProvider {
+public class YmlDynamicDataSourceProvider extends cn.humingfeng.dynamic.datasource.provider.AbstractDataSourceProvider {
 
     /**
      * 所有数据源

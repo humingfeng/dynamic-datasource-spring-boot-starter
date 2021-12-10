@@ -14,33 +14,31 @@
  * limitations under the License.
  * <pre/>
  */
-package cn.humingfeng.dynamic.datasource.support;
+package cn.humingfeng.dynamic.datasource.event;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
+
+import javax.sql.DataSource;
 
 /**
+ * 多数据源连接池创建事件
+ *
  * @author HuMingfeng
+ * @since 3.5.0
  */
-public class HealthCheckAdapter {
+public interface DataSourceInitEvent {
 
     /**
-     * 维护数据源健康状况
-     */
-    private static final Map<String, Boolean> DB_HEALTH = new ConcurrentHashMap<>();
-
-    public void putHealth(String key, Boolean healthState) {
-        DB_HEALTH.put(key, healthState);
-    }
-
-    /**
-     * 获取数据源连接健康状况
+     * 连接池创建前执行（可用于参数解密）
      *
-     * @param dataSource 数据源名称
-     * @return 健康状况
+     * @param dataSourceProperty 数据源基础信息
      */
-    public boolean getHealth(String dataSource) {
-        Boolean isHealth = DB_HEALTH.get(dataSource);
-        return isHealth != null && isHealth;
-    }
+    void beforeCreate(DataSourceProperty dataSourceProperty);
+
+    /**
+     * 连接池创建后执行
+     *
+     * @param dataSource 连接池
+     */
+    void afterCreate(DataSource dataSource);
 }

@@ -60,6 +60,11 @@ public class MysqlDynamicDataSourceProvider {
     private static final String GBASE_DATASOURCE = "com.gbase.jdbc.jdbc2.optional.GBaseDataSource";
 
     /**
+     * 懒加载常量
+     */
+    private static final String INIT_DATASOURCE_LAZY = "true";
+
+    /**
      * 数据源表建表语句
      */
     private static String CREATE_TABLE_IF_NOT_EXISTS;
@@ -73,6 +78,7 @@ public class MysqlDynamicDataSourceProvider {
                 "  DRIVER_CLASS_NAME varchar(500) DEFAULT NULL COMMENT '驱动',\n" +
                 "  DB_NAME varchar(255) DEFAULT NULL COMMENT '数据源名称',\n" +
                 "  TYPE varchar(255) DEFAULT NULL COMMENT '数据源类型',\n" +
+                "  LAZY varchar(255) DEFAULT NULL COMMENT '懒加载',\n" +
                 "  PRIMARY KEY (ID)\n" +
                 ") ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;";
     }
@@ -85,7 +91,7 @@ public class MysqlDynamicDataSourceProvider {
             //如果表不存在则建立
             jdbcTemplate.execute(CREATE_TABLE_IF_NOT_EXISTS);
 
-            List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT TYPE,DB_NAME,USER_NAME,PASSWORD,URL,DRIVER_CLASS_NAME FROM DATA_SOURCE_CONFIG");
+            List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT LAZY,TYPE,DB_NAME,USER_NAME,PASSWORD,URL,DRIVER_CLASS_NAME FROM DATA_SOURCE_CONFIG");
 
             Map<String, DataSourceProperty> dataSourcePropertiesMap = new HashMap<>(3);
 
@@ -96,6 +102,7 @@ public class MysqlDynamicDataSourceProvider {
                 String user_name = map.get("USER_NAME")==null?"":map.get("USER_NAME").toString();
                 String password = map.get("PASSWORD")==null?"":map.get("PASSWORD").toString();
                 String url = map.get("URL")==null?"":map.get("URL").toString();
+                String lazy = map.get("LAZY")==null?"false":map.get("LAZY").toString();
                 String driver_class_name = map.get("DRIVER_CLASS_NAME")==null?"":map.get("DRIVER_CLASS_NAME").toString();
 
                 if (StringUtils.isEmpty(db_name)
@@ -111,10 +118,16 @@ public class MysqlDynamicDataSourceProvider {
                 dataSourceProperty.setUrl(url);
                 dataSourceProperty.setUsername(user_name);
 
+                // 解决某些情况下，数据源连不上的情况
+                if (!StringUtils.isEmpty(lazy) && INIT_DATASOURCE_LAZY.equalsIgnoreCase(lazy)) {
+                    dataSourceProperty.setLazy(true);
+                    log.info(db_name+" is set lazy load");
+                }
+
                 try {
                     dataSourceProperty.setPassword(CryptoUtils.decrypt(password));
                 }catch (Exception e) {
-                    log.warn(db_name +" password is not encrypt");
+                    log.warn(db_name +" password:["+password+"] is not encrypt");
                     dataSourceProperty.setPassword(password);
                 }
                 dataSourceProperty.setDriverClassName(driver_class_name);
@@ -140,6 +153,6 @@ public class MysqlDynamicDataSourceProvider {
             e.printStackTrace();
             log.warn("init database from database is failed");
         }
-        return new HashMap<>();
+        return new HashMap<>(0);
     }
 }

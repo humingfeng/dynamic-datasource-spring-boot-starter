@@ -21,8 +21,7 @@ import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.hikari.HikariC
 import cn.humingfeng.dynamic.datasource.toolkit.ConfigMergeCreator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
@@ -37,21 +36,13 @@ import static cn.humingfeng.dynamic.datasource.support.DdConstants.HIKARI_DATASO
  * @author HuMingfeng
  * @since 2020/1/21
  */
-@Data
-@AllArgsConstructor
-public class HikariDataSourceCreator implements DataSourceCreator {
+public class HikariDataSourceCreator extends cn.humingfeng.dynamic.datasource.creator.AbstractDataSourceCreator implements cn.humingfeng.dynamic.datasource.creator.DataSourceCreator, InitializingBean {
 
     private static final ConfigMergeCreator<HikariCpConfig, HikariConfig> MERGE_CREATOR = new ConfigMergeCreator<>("HikariCp", HikariCpConfig.class, HikariConfig.class);
-    private static Boolean hikariExists = false;
     private static Method configCopyMethod = null;
 
     static {
-        try {
-            Class.forName(HIKARI_DATASOURCE);
-            hikariExists = true;
-            fetchMethod();
-        } catch (ClassNotFoundException ignored) {
-        }
+        fetchMethod();
     }
 
     private HikariCpConfig gConfig;
@@ -78,7 +69,7 @@ public class HikariDataSourceCreator implements DataSourceCreator {
     }
 
     @Override
-    public DataSource createDataSource(DataSourceProperty dataSourceProperty) {
+    public DataSource doCreateDataSource(DataSourceProperty dataSourceProperty) {
         HikariConfig config = MERGE_CREATOR.create(gConfig, dataSourceProperty.getHikari());
         config.setUsername(dataSourceProperty.getUsername());
         config.setPassword(dataSourceProperty.getPassword());
@@ -104,6 +95,11 @@ public class HikariDataSourceCreator implements DataSourceCreator {
     @Override
     public boolean support(DataSourceProperty dataSourceProperty) {
         Class<? extends DataSource> type = dataSourceProperty.getType();
-        return (type == null && hikariExists) || (type != null && HIKARI_DATASOURCE.equals(type.getName()));
+        return type == null || HIKARI_DATASOURCE.equals(type.getName());
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        gConfig = properties.getHikari();
     }
 }

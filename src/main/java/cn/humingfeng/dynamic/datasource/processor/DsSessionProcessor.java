@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author HuMingfeng
  * @since 2.5.0
  */
-public class DsSessionProcessor extends DsProcessor {
+public class DsSessionProcessor extends cn.humingfeng.dynamic.datasource.processor.DsProcessor {
 
     /**
      * session开头

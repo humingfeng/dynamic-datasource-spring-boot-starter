@@ -16,20 +16,18 @@
  */
 package cn.humingfeng.dynamic.datasource.aop;
 
-import cn.humingfeng.dynamic.datasource.tx.ConnectionFactory;
+import cn.humingfeng.dynamic.datasource.tx.LocalTxUtil;
 import cn.humingfeng.dynamic.datasource.tx.TransactionContext;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.util.StringUtils;
 
-import java.util.UUID;
-
 /**
  * @author HuMingfeng
  */
 @Slf4j
-public class DynamicLocalTransactionAdvisor implements MethodInterceptor {
+public class DynamicLocalTransactionInterceptor implements MethodInterceptor {
 
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
@@ -38,16 +36,18 @@ public class DynamicLocalTransactionAdvisor implements MethodInterceptor {
         }
         boolean state = true;
         Object o;
-        String xid = UUID.randomUUID().toString();
-        TransactionContext.bind(xid);
+        LocalTxUtil.startTransaction();
         try {
             o = methodInvocation.proceed();
         } catch (Exception e) {
             state = false;
             throw e;
         } finally {
-            ConnectionFactory.notify(state);
-            TransactionContext.remove();
+            if (state) {
+                LocalTxUtil.commit();
+            } else {
+                LocalTxUtil.rollback();
+            }
         }
         return o;
     }

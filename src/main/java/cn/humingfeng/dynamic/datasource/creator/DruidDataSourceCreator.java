@@ -17,18 +17,21 @@
 package cn.humingfeng.dynamic.datasource.creator;
 
 import com.alibaba.druid.filter.Filter;
+import com.alibaba.druid.filter.logging.CommonsLogFilter;
+import com.alibaba.druid.filter.logging.Log4j2Filter;
+import com.alibaba.druid.filter.logging.Log4jFilter;
 import com.alibaba.druid.filter.logging.Slf4jLogFilter;
-import com.alibaba.druid.filter.stat.StatFilter;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.wall.WallConfig;
 import com.alibaba.druid.wall.WallFilter;
 import cn.humingfeng.dynamic.datasource.exception.ErrorCreateDataSourceException;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid.DruidConfig;
-import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid.DruidSlf4jConfig;
+import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid.DruidLogConfigUtil;
+import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid.DruidStatConfigUtil;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.druid.DruidWallConfigUtil;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
@@ -47,31 +50,16 @@ import static cn.humingfeng.dynamic.datasource.support.DdConstants.DRUID_DATASOU
  * @author HuMingfeng
  * @since 2020/1/21
  */
-@Data
 @Slf4j
-public class DruidDataSourceCreator implements DataSourceCreator {
-
-    private static Boolean druidExists = false;
-
-    static {
-        try {
-            Class.forName(DRUID_DATASOURCE);
-            druidExists = true;
-        } catch (ClassNotFoundException ignored) {
-        }
-    }
-
-    private DruidConfig gConfig;
+public class DruidDataSourceCreator extends cn.humingfeng.dynamic.datasource.creator.AbstractDataSourceCreator implements cn.humingfeng.dynamic.datasource.creator.DataSourceCreator, InitializingBean {
 
     @Autowired(required = false)
     private ApplicationContext applicationContext;
 
-    public DruidDataSourceCreator(DruidConfig gConfig) {
-        this.gConfig = gConfig;
-    }
+    private DruidConfig gConfig;
 
     @Override
-    public DataSource createDataSource(DataSourceProperty dataSourceProperty) {
+    public DataSource doCreateDataSource(DataSourceProperty dataSourceProperty) {
         DruidDataSource dataSource = new DruidDataSource();
         dataSource.setUsername(dataSourceProperty.getUsername());
         dataSource.setPassword(dataSourceProperty.getPassword());
@@ -84,7 +72,7 @@ public class DruidDataSourceCreator implements DataSourceCreator {
         DruidConfig config = dataSourceProperty.getDruid();
         Properties properties = config.toProperties(gConfig);
 
-        List<Filter> proxyFilters = this.initFilters(dataSourceProperty, properties);
+        List<Filter> proxyFilters = this.initFilters(dataSourceProperty, properties.getProperty("druid.filters"));
         dataSource.setProxyFilters(proxyFilters);
 
         dataSource.configFromPropety(properties);
@@ -96,37 +84,43 @@ public class DruidDataSourceCreator implements DataSourceCreator {
         if (Boolean.FALSE.equals(dataSourceProperty.getLazy())) {
             try {
                 dataSource.init();
-                log.info("dynamic-datasource create druid database named " + dataSourceProperty.getPoolName() + " succeed");
             } catch (SQLException e) {
-                log.info("dynamic-datasource create druid database named " + dataSourceProperty.getPoolName() + " error");
                 throw new ErrorCreateDataSourceException("druid create error", e);
             }
         }
         return dataSource;
     }
 
-    private List<Filter> initFilters(DataSourceProperty dataSourceProperty, Properties properties) {
+    private List<Filter> initFilters(DataSourceProperty dataSourceProperty, String filters) {
         List<Filter> proxyFilters = new ArrayList<>(2);
-        String filters = properties.getProperty("druid.filters");
         if (!StringUtils.isEmpty(filters)) {
-            if (filters.contains("stat")) {
-                StatFilter statFilter = new StatFilter();
-                statFilter.configFromProperties(properties);
-                proxyFilters.add(statFilter);
-            }
-            if (filters.contains("wall")) {
-                WallConfig wallConfig = DruidWallConfigUtil.toWallConfig(dataSourceProperty.getDruid().getWall(), gConfig.getWall());
-                WallFilter wallFilter = new WallFilter();
-                wallFilter.setConfig(wallConfig);
-                proxyFilters.add(wallFilter);
-            }
-            if (filters.contains("slf4j")) {
-                Slf4jLogFilter slf4jLogFilter = new Slf4jLogFilter();
-                // 由于properties上面被用了，LogFilter不能使用configFromProperties方法，这里只能一个个set了。
-                DruidSlf4jConfig slf4jConfig = gConfig.getSlf4j();
-                slf4jLogFilter.setStatementLogEnabled(slf4jConfig.getEnable());
-                slf4jLogFilter.setStatementExecutableSqlLogEnable(slf4jConfig.getStatementExecutableSqlLogEnable());
-                proxyFilters.add(slf4jLogFilter);
+            String[] filterItems = filters.split(",");
+            for (String filter : filterItems) {
+                switch (filter) {
+                    case "stat":
+                        proxyFilters.add(DruidStatConfigUtil.toStatFilter(dataSourceProperty.getDruid().getStat(), gConfig.getStat()));
+                        break;
+                    case "wall":
+                        WallConfig wallConfig = DruidWallConfigUtil.toWallConfig(dataSourceProperty.getDruid().getWall(), gConfig.getWall());
+                        WallFilter wallFilter = new WallFilter();
+                        wallFilter.setConfig(wallConfig);
+                        proxyFilters.add(wallFilter);
+                        break;
+                    case "slf4j":
+                        proxyFilters.add(DruidLogConfigUtil.initFilter(Slf4jLogFilter.class, dataSourceProperty.getDruid().getSlf4j(), gConfig.getSlf4j()));
+                        break;
+                    case "commons-log":
+                        proxyFilters.add(DruidLogConfigUtil.initFilter(CommonsLogFilter.class, dataSourceProperty.getDruid().getCommonsLog(), gConfig.getCommonsLog()));
+                        break;
+                    case "log4j":
+                        proxyFilters.add(DruidLogConfigUtil.initFilter(Log4jFilter.class, dataSourceProperty.getDruid().getLog4j(), gConfig.getLog4j()));
+                        break;
+                    case "log4j2":
+                        proxyFilters.add(DruidLogConfigUtil.initFilter(Log4j2Filter.class, dataSourceProperty.getDruid().getLog4j2(), gConfig.getLog4j2()));
+                        break;
+                    default:
+                        log.warn("dynamic-datasource current not support [{}]", filter);
+                }
             }
         }
         if (this.applicationContext != null) {
@@ -213,6 +207,11 @@ public class DruidDataSourceCreator implements DataSourceCreator {
     @Override
     public boolean support(DataSourceProperty dataSourceProperty) {
         Class<? extends DataSource> type = dataSourceProperty.getType();
-        return (type == null && druidExists) || (type != null && DRUID_DATASOURCE.equals(type.getName()));
+        return type == null || DRUID_DATASOURCE.equals(type.getName());
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        gConfig = properties.getDruid();
     }
 }

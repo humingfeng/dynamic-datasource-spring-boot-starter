@@ -30,6 +30,8 @@ package cn.humingfeng.dynamic.datasource.toolkit;
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * @author HuMingfeng
  */
 public class Base64 {
 
@@ -137,8 +139,6 @@ public class Base64 {
                 result.append('=');
             }
         }
-        // assert inCursor == a.length;
-        // assert result.length() == resultLen;
         return result.toString();
     }
 
@@ -201,8 +201,6 @@ public class Base64 {
                 result[outCursor++] = (byte) ((ch1 << 4) | (ch2 >> 2));
             }
         }
-        // assert inCursor == s.length()-missingBytesInLastGroup;
-        // assert outCursor == result.length;
         return result;
     }
 

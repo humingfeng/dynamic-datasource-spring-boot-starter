@@ -19,10 +19,9 @@ package cn.humingfeng.dynamic.datasource.creator;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.dbcp2.Dbcp2Config;
 import cn.humingfeng.dynamic.datasource.toolkit.ConfigMergeCreator;
-import lombok.Data;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
@@ -35,30 +34,15 @@ import static cn.humingfeng.dynamic.datasource.support.DdConstants.DBCP2_DATASOU
  * @author HuMingfeng
  * @since 2021/5/18
  */
-@Data
-@Slf4j
-public class Dbcp2DataSourceCreator implements DataSourceCreator {
+public class Dbcp2DataSourceCreator extends cn.humingfeng.dynamic.datasource.creator.AbstractDataSourceCreator implements cn.humingfeng.dynamic.datasource.creator.DataSourceCreator, InitializingBean {
 
     private static final ConfigMergeCreator<Dbcp2Config, BasicDataSource> MERGE_CREATOR = new ConfigMergeCreator<>("Dbcp2", Dbcp2Config.class, BasicDataSource.class);
-    private static Boolean dbcp2Exists = false;
-
-    static {
-        try {
-            Class.forName(DBCP2_DATASOURCE);
-            dbcp2Exists = true;
-        } catch (ClassNotFoundException ignored) {
-        }
-    }
 
     private Dbcp2Config gConfig;
 
-    public Dbcp2DataSourceCreator(Dbcp2Config gConfig) {
-        this.gConfig = gConfig;
-    }
-
     @Override
     @SneakyThrows
-    public DataSource createDataSource(DataSourceProperty dataSourceProperty) {
+    public DataSource doCreateDataSource(DataSourceProperty dataSourceProperty) {
         BasicDataSource dataSource = MERGE_CREATOR.create(gConfig, dataSourceProperty.getDbcp2());
         dataSource.setUsername(dataSourceProperty.getUsername());
         dataSource.setPassword(dataSourceProperty.getPassword());
@@ -70,13 +54,17 @@ public class Dbcp2DataSourceCreator implements DataSourceCreator {
         if (Boolean.FALSE.equals(dataSourceProperty.getLazy())) {
             dataSource.start();
         }
-        log.info("dynamic-datasource create dbcp2 database named " + dataSourceProperty.getPoolName() + " succeed");
         return dataSource;
     }
 
     @Override
     public boolean support(DataSourceProperty dataSourceProperty) {
         Class<? extends DataSource> type = dataSourceProperty.getType();
-        return (type == null && dbcp2Exists) || (type != null && DBCP2_DATASOURCE.equals(type.getName()));
+        return type == null || DBCP2_DATASOURCE.equals(type.getName());
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        gConfig = properties.getDbcp2();
     }
 }

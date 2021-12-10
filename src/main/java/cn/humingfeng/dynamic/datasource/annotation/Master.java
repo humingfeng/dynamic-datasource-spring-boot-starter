@@ -18,6 +18,9 @@ package cn.humingfeng.dynamic.datasource.annotation;
 
 import java.lang.annotation.*;
 
+/**
+ * @author HuMingfeng
+ */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

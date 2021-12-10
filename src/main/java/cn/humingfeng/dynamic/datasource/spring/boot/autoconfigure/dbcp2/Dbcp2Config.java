@@ -21,6 +21,11 @@ import lombok.Data;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Dbcp2 的配置
+ *
+ * @author HuMingfeng
+ */
 @Data
 public class Dbcp2Config {
 

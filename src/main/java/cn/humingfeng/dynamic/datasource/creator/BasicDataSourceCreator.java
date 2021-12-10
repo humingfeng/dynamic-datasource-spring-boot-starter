@@ -18,7 +18,6 @@ package cn.humingfeng.dynamic.datasource.creator;
 
 import cn.humingfeng.dynamic.datasource.exception.ErrorCreateDataSourceException;
 import cn.humingfeng.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
@@ -30,9 +29,8 @@ import java.lang.reflect.Method;
  * @author HuMingfeng
  * @since 2020/1/21
  */
-@Data
 @Slf4j
-public class BasicDataSourceCreator implements DataSourceCreator {
+public class BasicDataSourceCreator extends cn.humingfeng.dynamic.datasource.creator.AbstractDataSourceCreator implements cn.humingfeng.dynamic.datasource.creator.DataSourceCreator {
 
     private static Method createMethod;
     private static Method typeMethod;
@@ -78,7 +76,7 @@ public class BasicDataSourceCreator implements DataSourceCreator {
      * @return 数据源
      */
     @Override
-    public DataSource createDataSource(DataSourceProperty dataSourceProperty) {
+    public DataSource doCreateDataSource(DataSourceProperty dataSourceProperty) {
         try {
             Object o1 = createMethod.invoke(null);
             Object o2 = typeMethod.invoke(o1, dataSourceProperty.getType());
@@ -86,11 +84,8 @@ public class BasicDataSourceCreator implements DataSourceCreator {
             Object o4 = usernameMethod.invoke(o3, dataSourceProperty.getUsername());
             Object o5 = passwordMethod.invoke(o4, dataSourceProperty.getPassword());
             Object o6 = driverClassNameMethod.invoke(o5, dataSourceProperty.getDriverClassName());
-            DataSource dataSource = (DataSource) buildMethod.invoke(o6);
-            log.info("dynamic-datasource create basic database named " + dataSourceProperty.getPoolName() + " succeed");
-            return dataSource;
+            return (DataSource) buildMethod.invoke(o6);
         } catch (Exception e) {
-            log.error("dynamic-datasource create basic database named " + dataSourceProperty.getPoolName() + " error");
             throw new ErrorCreateDataSourceException(
                     "dynamic-datasource create basic database named " + dataSourceProperty.getPoolName() + " error");
         }
